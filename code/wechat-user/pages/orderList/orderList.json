@@ -1,0 +1,10 @@
+{
+    "navigationBarTitleText": "我的订单",
+    "usingComponents": {
+      "custom-tabbar": "../../custom-tab-bar",
+      "skeleton": "../../components/skeleton/skeleton"
+    },
+    "enablePullDownRefresh": true,
+    "navigationBarBackgroundColor": "#47BA91",
+    "navigationBarTextStyle": "white"
+  }

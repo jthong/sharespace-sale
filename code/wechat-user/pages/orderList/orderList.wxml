@@ -1,0 +1,162 @@
+<!--pages/orderList/orderList.wxml-->
+<wxs src="../../utils/magic.wxs" module="magic" />
+
+<!-- 骨架屏 -->
+<skeleton type="list" loading="{{skeletonLoading}}" rows="{{4}}" />
+
+<block wx:if="{{isLogin && !skeletonLoading}}">
+  <view class="tabs">
+    <van-dropdown-menu active-color="{{mainColor}}">
+      <van-dropdown-item value="{{ value1 }}" options="{{ option1 }}" bind:change="OrderStatusDropdown" />
+      <van-dropdown-item value="{{ value2 }}" options="{{ option2 }}" bind:change="orderColumnDropdown" />
+    </van-dropdown-menu>
+  </view>
+</block>
+
+<view class="container" wx:if="{{!skeletonLoading}}">
+  <block wx:if="{{isLogin}}">
+    <block wx:if="{{orderlist.length>0}}">
+      <view class="lists" wx:for="{{orderlist}}" wx:key="orderlist">
+        <view class="item" bindtap="openDoor" data-no="{{item.orderNo}}">
+          <!-- 状态色条 -->
+          <view class="status-bar status-{{item.status}}"></view>
+          <view class="top">
+            <view class="left">
+              <image lazy-load src="https://oss.systemdiv.com/57403298b2d96567fa62f6fc188c29fec2f7bb84cc4e7bb76085ee092cd62275.png" />
+              <text class="text">{{item.storeName}}</text>
+            </view>
+            <view class="right">
+              <text>查看详情</text>
+              <iconfont name="right" size="20"></iconfont>
+            </view>
+          </view>
+          <view class="highlight">
+            <view class="left">
+              <image lazy-load src="https://oss.systemdiv.com/b50add85068c0175a7f3faf8b8abde6a4856b44ca8b22470af261cb3cbd0a97f.png" />
+              <text>{{item.fullTime}}</text>
+            </view>
+            <view class="right">¥<text>{{item.payPrice}}</text></view>
+          </view>
+          <view class="info-line">
+            <text class="bold">场地名称：</text>
+            <text>{{item.roomName}}</text>
+          </view>
+          <view class="info-line">
+            <text class="bold">订单编号：</text>
+            <text catch:tap="copyOrderNo" data-order="{{item.orderNo}}">{{item.orderNo}}</text>
+          </view>
+          <view class="info-line">
+            <text class="bold">订单状态：</text>
+            <text class="status-text status-{{item.status}}">{{item.status==0?'未开始':item.status==1?'进行中':item.status==2?'已完成':item.status==3?'已取消':'未知'}}</text>
+          </view>
+          <view class="info-line" wx:if="{{item.deposit}}">
+            <text class="bold">支付押金：</text>
+            <view class="price">{{item.deposit}}
+              <block wx:if="{{item.depositRefund}}">(已退回)</block>
+            </view>
+          </view>
+          <view class="info-line display-space">
+            <view>
+              <text class="bold">支付方式：</text>
+              <text>{{item.payType===0?'管理员':item.payType===1?'微信':item.payType===2?'余额':item.payType===3?'团购':item.payType===4?'套餐':'预订'}}</text>
+            </view>
+            <block wx:if="{{item.status==0}}">
+              <text class="action-link" catch:tap="cancelOrder" data-info="{{item}}">申请退款</text>
+            </block>
+          </view>
+          <view class="info-line" wx:if="{{item.refundPrice}}">
+            <text class="bold">订单退款：</text>
+            <text class="refund-price">￥{{item.refundPrice}}</text>
+          </view>
+          <view class="info-line display-space">
+            <view class="discount-tag" wx:if="{{item.bargainPrice}}">
+              <image lazy-load src="https://oss.systemdiv.com/bef719af1a57ec291093e1d275edbd734fd5abe647711c0b5c79208ceffa89b8.png" />
+              <view>已砍价<text>¥{{item.bargainPrice}}</text>元</view>
+            </view>
+            <view wx:else></view>
+          </view>
+          <block wx:if="{{item.status==0||item.status==1}}">
+            <view class="status-tag" catch:tap="showOrderQr" data-no="{{item.orderNo}}">
+              <iconfont name="erweima1" size="50"></iconfont>
+            </view>
+          </block>
+          <block wx:else>
+            <image lazy-load class="status-tag" src="{{statusImgs[item.status] || statusImgs[0]}}" />
+          </block>
+        </view>
+      </view>
+      <view wx:if="{{!canLoadMore}}" class="notes">
+        <image lazy-load src="https://oss.systemdiv.com/845a85e9bf97167a23448be2be0087844f7afcf9d7068227fc2a039e4a29d73b.png" />
+        到底了，没有更多订单啦~
+      </view>
+    </block>
+    <block wx:else>
+      <view class="empty-state">
+        <image lazy-load class="empty-icon" src="https://oss.systemdiv.com/f890fffcefdab6836f526d8a417e20044b030be8b781f5f3d863a77912c28d6e.png" mode="aspectFit" />
+        <text class="empty-text">暂无订单</text>
+        <text class="empty-sub">快去预订一个房间吧</text>
+      </view>
+    </block>
+  </block>
+  <block wx:else>
+    <view class="containerlogin">
+      <view class="photo">
+        <view class="img">
+          <image lazy-load src="https://oss.systemdiv.com/775b494fdf70e3a9063a0a570a2827a843e0c0c0930229f9ce15a486b80114d4.png" mode="widthFix" />
+        </view>
+        <view class="name">{{appName}}</view>
+      </view>
+      <button hover-class="button-click" class="loginBtn bg-primary" bind:tap="phone">登录后查看</button>
+    </view>
+  </block>
+</view>
+
+<!-- 取消订单弹窗 -->
+<van-dialog use-slot title="取消订单" show="{{ cancelOrderShow }}" show-cancel-button cancel-button-text="暂不取消" confirm-button-text="确认取消" bind:confirm="cancelConfirm">
+  <view class="dialog">
+    <view class="item">
+      <label>当前位置：</label>
+      <text>{{orderInfo.roomName}}（{{orderInfo.roomType===1?'小包':orderInfo.roomType===2?'中包':orderInfo.roomType===3?'大包':orderInfo.roomType===4?'豪包':orderInfo.roomType===5?'商务包':orderInfo.roomType===6?'豪华包间':orderInfo.roomType===7?'贵宾包间':'至尊包间'}}）</text>
+    </view>
+    <view class="item">
+      <label>开始时间：</label><text>{{orderInfo.startTime}}</text>
+    </view>
+    <view class="item">
+      <label>结束时间：</label><text>{{orderInfo.endTime}}</text>
+    </view>
+    <view class="item">
+      <view class="color-attention note">温馨提示：取消后，费用将按原支付方式退回！</view>
+    </view>
+  </view>
+</van-dialog>
+<!-- 取消订单成功弹窗 -->
+<van-dialog use-slot title="订单取消成功" show="{{ cancelOrderSuccess }}" confirm-button-text="好的">
+  <view class="dialog">
+    <view class="item">
+      <label>已为您成功取消下列订单</label>
+    </view>
+    <view class="item">
+      <label>当前位置：</label>
+      <text>{{orderInfo.roomName}}（{{orderInfo.roomType===1?'小包':orderInfo.roomType===2?'中包':orderInfo.roomType===3?'大包':orderInfo.roomType===4?'豪包':orderInfo.roomType===5?'商务包':orderInfo.roomType===6?'豪华包间':orderInfo.roomType===7?'贵宾包间':'至尊包间'}}）</text>
+    </view>
+    <view class="item">
+      <label>预约时间：</label><text>{{orderInfo.startTime}}~{{orderInfo.endTime}}</text>
+    </view>
+    <view class="item">
+      <view class="color-attention note">取消成功，费用已返还到原支付方式！</view>
+    </view>
+  </view>
+</van-dialog>
+
+<view wx:if="{{showModal}}" class="modal-mask" catchtouchmove="preventTouch">
+  <view class="modal-content" catchtap="true">
+    <view class="modal-title">请将二维码对准识别区</view>
+    <view class="qrcode-canvas-wrapper">
+      <canvas class="qrcode-canvas" canvas-id="myQrcode"></canvas>
+    </view>
+    <view class="guide-section">
+      <image lazy-load src="https://oss.systemdiv.com/7b1de7b27bd09bafc1911b4021372b784d29f848599172ab8b19c63498f5a344.jpg" class="guide-image" mode="aspectFit" />
+    </view>
+    <button class="close-btn" bindtap="closeModal">关闭</button>
+  </view>
+</view>

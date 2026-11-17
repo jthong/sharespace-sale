@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "房间续费",
+  "usingComponents": {
+    "van-overlay": "../../components/vant/overlay/index",
+    "van-popup": "../../components/vant/popup/index"
+  },
+  "navigationBarBackgroundColor": "#47BA91",
+  "navigationBarTextStyle": "white"
+}

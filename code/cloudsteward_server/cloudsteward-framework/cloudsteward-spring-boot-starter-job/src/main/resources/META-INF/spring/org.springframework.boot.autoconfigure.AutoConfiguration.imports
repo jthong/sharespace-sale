@@ -1,0 +1,2 @@
+com.cloudsteward.framework.quartz.config.CloudStewardQuartzAutoConfiguration
+com.cloudsteward.framework.quartz.config.CloudStewardAsyncAutoConfiguration

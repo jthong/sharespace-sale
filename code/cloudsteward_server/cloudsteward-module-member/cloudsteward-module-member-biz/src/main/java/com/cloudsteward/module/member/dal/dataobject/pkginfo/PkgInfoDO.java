@@ -1,0 +1,117 @@
+package com.cloudsteward.module.member.dal.dataobject.pkginfo;
+
+import com.baomidou.mybatisplus.annotation.*;
+import com.cloudsteward.framework.mybatis.core.dataobject.BaseDO;
+import com.cloudsteward.framework.mybatis.core.type.IntegerListTypeHandler;
+import lombok.*;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+/**
+ * 套餐信息 DO
+ *
+ * @author 超级管理员
+ */
+@TableName(value = "member_pkg_info", autoResultMap = true)
+@KeySequence("member_pkg_info_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PkgInfoDO extends BaseDO {
+
+    /**
+     * 套餐id
+     */
+    @TableId(type = com.baomidou.mybatisplus.annotation.IdType.AUTO)
+    private Long pkgId;
+    /**
+     * 套餐名称
+     */
+    private String pkgName;
+    /**
+     * 抵扣时长
+     */
+    private Integer hours;
+    /**
+     * 门店id
+     */
+    private Long storeId;
+    /**
+     * 房间类型
+     */                                                     // 当值时null时也对数据库进行修改 为了包厢和房间类型互斥
+    @TableField(typeHandler = IntegerListTypeHandler.class,updateStrategy = FieldStrategy.IGNORED)
+    private List<Integer> roomType;
+
+    /**
+     * 美团团购id
+     */
+    private String mtId;
+
+    /**
+     * 抖音团购id
+     */
+    private String dyId;
+
+    /**
+     * 快手团购id
+     */
+    private String ksId;
+
+    /**
+     * 按照包厢设置
+     */                                                  // 当值时null时也对数据库进行修改 为了包厢和房间类型互斥
+    @TableField(typeHandler = IntegerListTypeHandler.class,updateStrategy = FieldStrategy.IGNORED)
+    private List<Integer> enableRoom;
+
+    /**
+     * 可用时间
+     */
+    @TableField(typeHandler = IntegerListTypeHandler.class)
+    private List<Integer> enableTime;
+
+    /**
+     * 可用星期
+     */
+    @TableField(typeHandler = IntegerListTypeHandler.class)
+    private List<Integer> enableWeek;
+    /**
+     * 节假日可用
+     */
+    private Boolean enableHoliday;
+    /**
+     * 销售价格
+     */
+    private BigDecimal price;
+    /**
+     * 购买后过期时间
+     */
+    private Integer expireDay;
+    /**
+     * 最大购买数量
+     */
+    private Integer maxNum;
+    /**
+     * 是否启用
+     */
+    private Boolean enable;
+
+    /**
+     * 排序id
+     */
+    private Integer sortId;
+    /**
+     * 支持余额购买
+     */
+    private Boolean balanceBuy;
+
+
+    /**
+     * 创建用户id
+     */
+    private Long createUserId;
+
+}

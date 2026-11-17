@@ -1,0 +1,76 @@
+// magic.wxs
+// 注意：WXS 仅支持 ES5，函数必须先定义后导出
+var split = function (tag) {
+  if (tag) {
+    var a = tag.split(","); // 逗号分隔
+    return a;
+  } else {
+    return [];
+  }
+}
+var splitkongge = function (tag) {
+  if (tag) {
+    var a = tag.split(" "); // 空格分隔
+    return a;
+  } else {
+    return [];
+  }
+}
+
+var splittime = function (tag) {
+  if (tag) {
+    var atime = tag.split(" ");
+    var atime2 = [];
+    if (atime.length) {
+      var atime1 = atime[1];
+      if (atime1) {
+        atime2 = atime1.split(":");
+      }
+    }
+    return atime2;
+  } else {
+    return [];
+  }
+}
+
+var includes = function (arr, string) {
+  var is = false
+  if (arr !== undefined) {
+    if (arr.indexOf(string) > -1) {
+      is = true
+    } else {
+      is = false
+    }
+  }
+  return is
+}
+
+// 房间类型文案（按 roomType 数值索引）
+var typeText = function (t) {
+  var m = ['特价包', '小包', '中包', '大包', '豪包', '商务包', '斯洛克', '中式黑八', '美式球桌']
+  if (m[t] !== undefined) {
+    return m[t]
+  }
+  return ''
+}
+// 房间状态文案（按 status 数值索引）
+var statusText = function (s) {
+  var m = ['已禁用', '空闲中', '待清洁', '使用中', '已预约']
+  if (m[s] !== undefined) {
+    return m[s]
+  }
+  return ''
+}
+var statusClass = function (s) {
+  return 'st' + s
+}
+
+module.exports = {
+  split: split,
+  splitkongge: splitkongge,
+  splittime: splittime,
+  includes: includes,
+  typeText: typeText,
+  statusText: statusText,
+  statusClass: statusClass
+}

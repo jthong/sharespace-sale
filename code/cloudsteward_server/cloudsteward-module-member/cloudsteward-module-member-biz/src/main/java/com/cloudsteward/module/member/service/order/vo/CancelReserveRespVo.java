@@ -1,0 +1,12 @@
+package com.cloudsteward.module.member.service.order.vo;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+
+@Data
+public class CancelReserveRespVo {
+
+     @Schema(description = "订单id")
+    private String orderId;
+
+}

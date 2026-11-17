@@ -1,0 +1,25 @@
+package com.cloudsteward.module.member.dal.dataobject.holiday;
+
+import com.baomidou.mybatisplus.annotation.TableName;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.*;
+
+@TableName("member_holiday")
+@Data
+@EqualsAndHashCode
+@ToString(callSuper = true)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class HolidayDo {
+
+     @Schema(description = "时间")
+    private String dateTime;
+
+     @Schema(description = "类型 0工作日期 1周末 2节假日")
+    private String type;
+
+     @Schema(description = "备注")
+    private String remark;
+
+}

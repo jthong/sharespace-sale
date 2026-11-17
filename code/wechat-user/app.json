@@ -1,0 +1,167 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/doorList/doorList",
+    "pages/recharge/recharge",
+    "pages/orderList/orderList",
+    "pages/user/user",
+    "pages/booking/booking",
+    "pages/changeDoor/changeDoor",
+    "pages/coupon/coupon",
+    "pages/couponActive/index",
+    "pages/door/door",
+    "pages/doorDetail/doorDetail",
+    "pages/doorSelect/doorSelect",
+    "pages/doorSubmit/doorSubmit",
+    "pages/getBalance/getBalance",
+    "pages/help/help",
+    "pages/inventory/index",
+    "pages/join/join",
+    "pages/location/location",
+    "pages/login/login",
+    "pages/map/map",
+    "pages/myBalance/myBalance",
+    "pages/orderDetail/orderDetail",
+    "pages/orderSubmit/orderSubmit",
+    "pages/pay/pay",
+    "pages/placeOrder/placeOrder",
+    "pages/productOrder/productOrder",
+    "pages/productOrderInfo/productOrderInfo",
+    "pages/roomRenew/roomRenew",
+    "pages/searchOrder/index",
+    "pages/selectDoor/selectDoor",
+    "pages/setUserInfo/setUserInfo",
+    "pages/setUserName/setUserName",
+    "pages/setUserPhone/setUserPhone",
+    "pages/shop/shop",
+    "pages/tencentMap/tencentMap",
+    "pages/tuangou/tuangou",
+    "pages/yeepay/agreement",
+    "pages/yeepay/index"
+  ],
+  "subPackages": [
+    {
+      "root": "packageA",
+      "pages": [
+        "pages/addLock/addLock",
+        "pages/addProduct/addProduct",
+        "pages/admin/admin",
+        "pages/bleList/bleList",
+        "pages/cleaner/cleaner",
+        "pages/configGateWay/index",
+        "pages/configLockWifi/index",
+        "pages/configPrePay/configPrePay",
+        "pages/deviceList/deviceList",
+        "pages/doorManage/doorManage",
+        "pages/doorPosition/doorPosition",
+        "pages/editPages/editPages",
+        "pages/faceBlacklist/faceBlacklist",
+        "pages/faceRecord/faceRecord",
+        "pages/goodsKindManage/goodsKindManage",
+        "pages/guide/guide",
+        "pages/meituanreserve/meituanreserve",
+        "pages/noticeManage/noticeManage",
+        "pages/packageManagement/packageManagement",
+        "pages/payOrder/index",
+        "pages/productManage/productManage",
+        "pages/pushrule/pushrule",
+        "pages/roomList/roomList",
+        "pages/scanQr/scanQr",
+        "pages/setCoupon/setCoupon",
+        "pages/setCouponInfo/setCouponInfo",
+        "pages/setDiscount/setDiscount",
+        "pages/setDoorInfo/setDoorInfo",
+        "pages/setDoorList/setDoorList",
+        "pages/SetOrder/SetOrder",
+        "pages/setStore/setStore",
+        "pages/setStoreInfo/setStoreInfo",
+        "pages/setStoreSound/setStoreSound",
+        "pages/setTemplate/index",
+        "pages/setVip/setVip",
+        "pages/statics/statics",
+        "pages/task/task",
+        "pages/taskDetail/taskDetail",
+        "pages/taskManager/taskManager",
+        "pages/taskSettle/taskSettle",
+        "pages/taskStatics/taskStatics",
+        "pages/tuangou/tuangou",
+        "pages/vipBlacklist/vipBlacklist",
+        "pages/vipConfig/vipConfig",
+        "pages/vipDetail/vipDetail",
+        "pages/vipList/vipList",
+        "pages/ydCancel/index"
+      ]
+    }
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#47BA91",
+    "navigationBarTitleText": "云掌柜共享空间",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F4F4F4"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#9A9A9A",
+    "selectedColor": "#47BA91",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/doorList/doorList",
+        "text": "房态"
+      },
+      {
+        "pagePath": "pages/recharge/recharge",
+        "text": "优惠中心"
+      },
+      {
+        "pagePath": "pages/orderList/orderList",
+        "text": "我的订单"
+      },
+      {
+        "pagePath": "pages/user/user",
+        "text": "个人中心"
+      }
+    ]
+  },
+  "usingComponents": {
+    "iconfont": "/iconfont/iconfont",
+    "van-action-sheet": "components/vant/action-sheet/index",
+    "van-button": "components/vant/button/index",
+    "van-calendar": "components/vant/calendar/index",
+    "van-cell": "components/vant/cell/index",
+    "van-cell-group": "components/vant/cell-group/index",
+    "van-datetime-picker": "components/vant/datetime-picker/index",
+    "van-dialog": "components/vant/dialog/index",
+    "van-dropdown-item": "components/vant/dropdown-item/index",
+    "van-dropdown-menu": "components/vant/dropdown-menu/index",
+    "van-field": "components/vant/field/index",
+    "van-icon": "components/vant/icon/index",
+    "van-overlay": "components/vant/overlay/index",
+    "van-picker": "components/vant/picker/index",
+    "van-popup": "components/vant/popup/index",
+    "van-radio": "components/vant/radio/index",
+    "van-radio-group": "components/vant/radio-group/index",
+    "van-search": "components/vant/search/index",
+    "van-stepper": "components/vant/stepper/index",
+    "van-tab": "components/vant/tab/index",
+    "van-tabs": "components/vant/tabs/index",
+    "van-uploader": "components/vant/uploader/index"
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于展示附近门店及包间位置"
+    }
+  },
+  "requiredPrivateInfos": [
+    "getLocation",
+    "chooseLocation"
+  ],
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

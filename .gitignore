@@ -1,0 +1,41 @@
+# dependencies
+node_modules/
+miniprogram_npm/
+
+# build output
+target/
+dist/
+
+# logs
+*.log
+logs/
+nohup.out
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 敏感配置（含密钥/密码，禁止入库）
+doc/团购配置-*.md
+
+# Local credentials and generated outputs
+**/.env
+**/.env.*
+**/docker.env
+**/application-dev.yaml
+**/application-prod.yaml
+**/wechat-partner.properties
+**/project.private.config.json
+**/node_modules/
+**/target/
+**/dist/
+*.pfx
+*.p12
+*.pem
+*.key
+!*.example

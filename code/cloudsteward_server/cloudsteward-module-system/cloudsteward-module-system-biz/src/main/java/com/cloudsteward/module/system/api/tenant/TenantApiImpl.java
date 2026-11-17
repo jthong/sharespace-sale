@@ -1,0 +1,41 @@
+package com.cloudsteward.module.system.api.tenant;
+
+import com.cloudsteward.module.system.api.tenant.dto.TenantBean;
+import com.cloudsteward.module.system.service.tenant.TenantService;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.List;
+
+/**
+ * 多租户的 API 实现类
+ *
+ * @author 芋道源码
+ */
+@Service
+public class TenantApiImpl implements TenantApi {
+
+    @Resource
+    private TenantService tenantService;
+
+    @Override
+    public List<Long> getTenantIdList() {
+        return tenantService.getTenantIdList();
+    }
+
+    @Override
+    public void validateTenant(Long id) {
+        tenantService.validTenant(id);
+    }
+
+    @Override
+    public String getAdminPhone(Long id) {
+        return tenantService.getAdminPhone(id);
+    }
+
+    @Override
+    public TenantBean getById(Long tenantId) {
+        return tenantService.getById(tenantId);
+    }
+
+}

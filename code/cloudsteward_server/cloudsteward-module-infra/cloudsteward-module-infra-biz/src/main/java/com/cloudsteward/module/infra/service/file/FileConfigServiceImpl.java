@@ -1,0 +1,214 @@
+package com.cloudsteward.module.infra.service.file;
+
+import cn.hutool.core.io.resource.ResourceUtil;
+import cn.hutool.core.util.IdUtil;
+import com.cloudsteward.framework.common.pojo.PageResult;
+import com.cloudsteward.framework.common.util.json.JsonUtils;
+import com.cloudsteward.framework.common.util.validation.ValidationUtils;
+import com.cloudsteward.framework.file.core.client.FileClient;
+import com.cloudsteward.framework.file.core.client.FileClientConfig;
+import com.cloudsteward.framework.file.core.client.FileClientFactory;
+import com.cloudsteward.framework.file.core.client.db.DBFileClientConfig;
+import com.cloudsteward.framework.file.core.client.local.LocalFileClientConfig;
+import com.cloudsteward.framework.file.core.enums.FileStorageEnum;
+import com.cloudsteward.module.infra.api.config.ConfigApi;
+import com.cloudsteward.module.infra.controller.admin.file.vo.config.FileConfigCreateReqVO;
+import com.cloudsteward.module.infra.controller.admin.file.vo.config.FileConfigPageReqVO;
+import com.cloudsteward.module.infra.controller.admin.file.vo.config.FileConfigUpdateReqVO;
+import com.cloudsteward.module.infra.convert.file.FileConfigConvert;
+import com.cloudsteward.module.infra.dal.dataobject.file.FileConfigDO;
+import com.cloudsteward.module.infra.dal.mysql.file.FileConfigMapper;
+import com.cloudsteward.module.infra.mq.producer.file.FileConfigProducer;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.validation.annotation.Validated;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.validation.Validator;
+import java.util.List;
+import java.util.Map;
+
+import static com.cloudsteward.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static com.cloudsteward.module.infra.enums.ErrorCodeConstants.FILE_CONFIG_DELETE_FAIL_MASTER;
+import static com.cloudsteward.module.infra.enums.ErrorCodeConstants.FILE_CONFIG_NOT_EXISTS;
+
+/**
+ * 文件配置 Service 实现类
+ *
+ * @author 芋道源码
+ */
+@Service
+@Validated
+@Slf4j
+public class FileConfigServiceImpl implements FileConfigService {
+
+    @Resource
+    private FileClientFactory fileClientFactory;
+    /**
+     * Master FileClient 对象，有且仅有一个，即 {@link FileConfigDO#getMaster()} 对应的
+     */
+    @Getter
+    private FileClient masterFileClient;
+
+    @Resource
+    private FileConfigMapper fileConfigMapper;
+
+    @Resource
+    private FileConfigProducer fileConfigProducer;
+
+    @Resource
+    private Validator validator;
+
+    @Resource
+    @Lazy
+    private ConfigApi configApi;
+
+    @Override
+    @PostConstruct
+    public void initLocalCache() {
+        // 第一步：查询数据
+        List<FileConfigDO> configs = fileConfigMapper.selectList();
+        log.info("[initLocalCache][缓存文件配置，数量为:{}]", configs.size());
+
+        String hostname = configApi.getConfigValueByKey("app.hostname");
+        // 第二步：构建缓存：创建或更新文件 Client
+        configs.forEach(config -> {
+            //强制设置域名为hostname
+            if (config.getStorage().intValue() == 1) {
+                DBFileClientConfig dbFileClientConfig = (DBFileClientConfig) config.getConfig();
+                dbFileClientConfig.setDomain("https://" + hostname);
+                fileClientFactory.createOrUpdateFileClient(config.getId(), config.getStorage(), dbFileClientConfig);
+            } else if (config.getStorage().intValue() == 10) {
+                LocalFileClientConfig localFileClientConfig = (LocalFileClientConfig) config.getConfig();
+                localFileClientConfig.setDomain("https://" + hostname);
+                fileClientFactory.createOrUpdateFileClient(config.getId(), config.getStorage(), localFileClientConfig);
+            }else{
+                fileClientFactory.createOrUpdateFileClient(config.getId(), config.getStorage(), config.getConfig());
+            }
+            // 如果是 master，进行设置
+            if (Boolean.TRUE.equals(config.getMaster())) {
+                masterFileClient = fileClientFactory.getFileClient(config.getId());
+            }
+        });
+    }
+
+    @Override
+    public Long createFileConfig(FileConfigCreateReqVO createReqVO) {
+        //如果是数据库或者本地存储类型，直接强制修改域名地址
+        if (createReqVO.getStorage().intValue() == 1 || createReqVO.getStorage().intValue() == 10) {
+            String hostname = configApi.getConfigValueByKey("app.hostname");
+            createReqVO.getConfig().put("domain", "https://" + hostname);
+        }
+        // 插入
+        FileConfigDO fileConfig = FileConfigConvert.INSTANCE.convert(createReqVO)
+                .setConfig(parseClientConfig(createReqVO.getStorage(), createReqVO.getConfig()))
+                .setMaster(false); // 默认非 master
+
+        fileConfigMapper.insert(fileConfig);
+        // 发送刷新配置的消息
+        fileConfigProducer.sendFileConfigRefreshMessage();
+        // 返回
+        return fileConfig.getId();
+    }
+
+    @Override
+    public void updateFileConfig(FileConfigUpdateReqVO updateReqVO) {
+        // 校验存在
+        FileConfigDO config = validateFileConfigExists(updateReqVO.getId());
+        //如果是数据库或者本地存储类型，直接强制修改域名地址
+        if (config.getStorage().intValue() == 1 || config.getStorage().intValue() == 10) {
+            String hostname = configApi.getConfigValueByKey("app.hostname");
+            updateReqVO.getConfig().put("domain", "https://" + hostname);
+        }
+        // 更新
+        FileConfigDO updateObj = FileConfigConvert.INSTANCE.convert(updateReqVO)
+                .setConfig(parseClientConfig(config.getStorage(), updateReqVO.getConfig()));
+        fileConfigMapper.updateById(updateObj);
+        // 发送刷新配置的消息
+        fileConfigProducer.sendFileConfigRefreshMessage();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateFileConfigMaster(Long id) {
+        // 校验存在
+        validateFileConfigExists(id);
+        // 更新其它为非 master
+        fileConfigMapper.updateBatch(new FileConfigDO().setMaster(false));
+        // 更新
+        fileConfigMapper.updateById(new FileConfigDO().setId(id).setMaster(true));
+        // 发送刷新配置的消息
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+
+            @Override
+            public void afterCommit() {
+                fileConfigProducer.sendFileConfigRefreshMessage();
+            }
+
+        });
+    }
+
+    private FileClientConfig parseClientConfig(Integer storage, Map<String, Object> config) {
+        // 获取配置类
+        Class<? extends FileClientConfig> configClass = FileStorageEnum.getByStorage(storage)
+                .getConfigClass();
+        FileClientConfig clientConfig = JsonUtils.parseObject2(JsonUtils.toJsonString(config), configClass);
+        // 参数校验
+        ValidationUtils.validate(validator, clientConfig);
+        // 设置参数
+        return clientConfig;
+    }
+
+    @Override
+    public void deleteFileConfig(Long id) {
+        // 校验存在
+        FileConfigDO config = validateFileConfigExists(id);
+        if (Boolean.TRUE.equals(config.getMaster())) {
+            throw exception(FILE_CONFIG_DELETE_FAIL_MASTER);
+        }
+        // 删除
+        fileConfigMapper.deleteById(id);
+        // 发送刷新配置的消息
+        fileConfigProducer.sendFileConfigRefreshMessage();
+    }
+
+    private FileConfigDO validateFileConfigExists(Long id) {
+        FileConfigDO config = fileConfigMapper.selectById(id);
+        if (config == null) {
+            throw exception(FILE_CONFIG_NOT_EXISTS);
+        }
+        return config;
+    }
+
+    @Override
+    public FileConfigDO getFileConfig(Long id) {
+        return fileConfigMapper.selectById(id);
+    }
+
+    @Override
+    public PageResult<FileConfigDO> getFileConfigPage(FileConfigPageReqVO pageReqVO) {
+        return fileConfigMapper.selectPage(pageReqVO);
+    }
+
+    @Override
+    public String testFileConfig(Long id) throws Exception {
+        // 校验存在
+        validateFileConfigExists(id);
+        // 上传文件
+        byte[] content = ResourceUtil.readBytes("file/erweima.png");
+        FileClient fileClient = fileClientFactory.getFileClient(id);
+        return fileClient.upload(content, IdUtil.fastSimpleUUID() + ".png", "image/png", fileClient.getDomain());
+    }
+
+    @Override
+    public FileClient getFileClient(Long id) {
+        return fileClientFactory.getFileClient(id);
+    }
+
+}

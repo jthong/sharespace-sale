@@ -1,0 +1,10 @@
+{
+  "navigationStyle": "custom",
+  "navigationBarTextStyle": "white",
+  "usingComponents": {
+    "van-search": "../../components/vant/search/index",
+    "van-popup": "../../components/vant/popup/index",
+    "van-dialog": "../../components/vant/dialog/index",
+    "custom-tabbar": "../../custom-tab-bar"
+  }
+}

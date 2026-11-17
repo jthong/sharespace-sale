@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>云掌柜共享空间 · 业务操作手册</title>
+<style>
+  /* ===== Reset & Base ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    color: #333; background: #fafafa; line-height: 1.75;
+  }
+
+  /* ===== Color Variables ===== */
+  :root {
+    --primary: #FF6B35;
+    --primary-light: #FFF0E8;
+    --primary-dark: #E55A25;
+    --blue-bg: #EBF5FB;
+    --blue-border: #3498DB;
+    --yellow-bg: #FEF9E7;
+    --yellow-border: #F1C40F;
+    --green-bg: #EAFAF1;
+    --green-border: #27AE60;
+    --orange-bg: #FFF0E8;
+    --orange-border: #FF6B35;
+    --gray-bg: #f4f4f4;
+    --sidebar-w: 280px;
+  }
+
+  /* ===== Layout ===== */
+  .page-wrapper { display: flex; min-height: 100vh; }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh;
+    background: #fff; border-right: 1px solid #e8e8e8; overflow-y: auto;
+    padding: 20px 0; z-index: 100;
+  }
+  .sidebar-header {
+    padding: 0 20px 16px; border-bottom: 2px solid var(--primary);
+    margin-bottom: 12px;
+  }
+  .sidebar-header h2 { font-size: 18px; color: var(--primary); }
+  .sidebar-header p { font-size: 12px; color: #999; margin-top: 2px; }
+  .sidebar nav { padding: 0 10px; }
+  .sidebar nav a {
+    display: block; padding: 7px 12px; color: #555; text-decoration: none;
+    font-size: 13.5px; border-radius: 6px; margin-bottom: 2px; transition: all .2s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar nav a:hover { background: var(--primary-light); color: var(--primary); }
+  .sidebar nav a.active { background: var(--primary-light); color: var(--primary); border-left-color: var(--primary); font-weight: 600; }
+  .sidebar nav .nav-chapter { font-weight: 600; color: #333; font-size: 14px; margin-top: 10px; }
+  .sidebar nav .nav-sub { padding-left: 28px; font-size: 13px; color: #777; }
+
+  /* ===== Main Content ===== */
+  .main-content {
+    margin-left: var(--sidebar-w); flex: 1; padding: 40px 50px 80px;
+    max-width: 960px;
+  }
+
+  /* ===== Cover ===== */
+  .cover {
+    background: linear-gradient(135deg, var(--primary) 0%, #FF8F5E 100%);
+    color: #fff; padding: 50px 40px; border-radius: 16px;
+    margin-bottom: 40px; text-align: center;
+  }
+  .cover h1 { font-size: 36px; margin-bottom: 10px; }
+  .cover p { font-size: 16px; opacity: .9; }
+  .cover .version { margin-top: 16px; font-size: 13px; opacity: .7; }
+
+  /* ===== TOC (in-content) ===== */
+  .toc {
+    background: #fff; border: 1px solid #e8e8e8; border-radius: 12px;
+    padding: 28px 32px; margin-bottom: 40px;
+  }
+  .toc h2 { font-size: 20px; color: var(--primary); margin-bottom: 16px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin-bottom: 6px; }
+  .toc a { color: #444; text-decoration: none; }
+  .toc a:hover { color: var(--primary); }
+  .toc .toc-sub { margin-top: 4px; }
+  .toc .toc-sub ol { padding-left: 20px; }
+
+  /* ===== Chapter ===== */
+  .chapter {
+    background: #fff; border-radius: 12px; padding: 36px 40px;
+    margin-bottom: 36px; border: 1px solid #e8e8e8;
+  }
+  .chapter-header { margin-bottom: 24px; border-bottom: 2px solid var(--primary-light); padding-bottom: 16px; }
+  .chapter-header h2 { font-size: 26px; color: var(--primary); }
+  .chapter-summary {
+    background: var(--primary-light); border-left: 4px solid var(--primary);
+    padding: 12px 18px; border-radius: 0 8px 8px 0; margin-top: 12px;
+    font-size: 14px; color: #555;
+  }
+  .role-badge {
+    display: inline-block; padding: 3px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 600; margin-left: 10px; vertical-align: middle;
+  }
+  .role-admin { background: #EDE7F6; color: #7B1FA2; }
+  .role-boss { background: #FFF3E0; color: #E65100; }
+  .role-cleaner { background: #E8F5E9; color: #2E7D32; }
+  .role-customer { background: #E3F2FD; color: #1565C0; }
+  .role-system { background: #F3E5F5; color: #8E24AA; }
+
+  /* ===== Section Headings ===== */
+  h3 { font-size: 20px; color: #333; margin: 28px 0 14px; padding-left: 12px; border-left: 4px solid var(--primary); }
+  h4 { font-size: 17px; color: #444; margin: 20px 0 10px; }
+
+  /* ===== Steps ===== */
+  .step {
+    position: relative; padding: 18px 20px 18px 60px; margin-bottom: 16px;
+    background: #fafafa; border-radius: 10px; border: 1px solid #eee;
+  }
+  .step-number {
+    position: absolute; left: 16px; top: 18px;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--primary); color: #fff; font-weight: 700; font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step h4 { margin-top: 2px; margin-bottom: 8px; color: var(--primary-dark); }
+  .step ul { padding-left: 18px; }
+  .step li { margin-bottom: 4px; font-size: 14.5px; }
+
+  /* ===== Callout Boxes ===== */
+  .callout {
+    padding: 14px 18px; border-radius: 8px; margin: 16px 0;
+    border-left: 4px solid; font-size: 14px;
+  }
+  .callout-title { font-weight: 700; margin-bottom: 4px; }
+  .callout-tip { background: var(--blue-bg); border-color: var(--blue-border); }
+  .callout-tip .callout-title { color: #2980B9; }
+  .callout-warn { background: var(--yellow-bg); border-color: var(--yellow-border); }
+  .callout-warn .callout-title { color: #B7950B; }
+  .callout-success { background: var(--green-bg); border-color: var(--green-border); }
+  .callout-success .callout-title { color: #1E8449; }
+  .callout-important { background: var(--orange-bg); border-color: var(--orange-border); }
+  .callout-important .callout-title { color: var(--primary-dark); }
+
+  /* ===== Flow Diagram ===== */
+  .flow-diagram {
+    display: flex; flex-wrap: wrap; align-items: center;
+    justify-content: center; gap: 0; padding: 20px 10px;
+    margin: 20px 0;
+  }
+  .flow-box {
+    background: var(--primary); color: #fff; padding: 10px 16px;
+    border-radius: 8px; font-size: 13.5px; font-weight: 600;
+    text-align: center; min-width: 90px; max-width: 140px;
+    box-shadow: 0 2px 8px rgba(255,107,53,.25);
+  }
+  .flow-box.alt { background: #fff; color: var(--primary); border: 2px solid var(--primary); box-shadow: none; }
+  .flow-arrow {
+    font-size: 20px; color: var(--primary); padding: 0 6px;
+    display: flex; align-items: center; font-weight: 700;
+  }
+  .flow-arrow::after { content: "\2192"; }
+  .flow-break { flex-basis: 100%; height: 0; }
+  .flow-arrow-down {
+    text-align: center; font-size: 22px; color: var(--primary);
+    padding: 4px 0; font-weight: 700; width: 100%;
+  }
+  .flow-arrow-down::after { content: "\2193"; }
+
+  /* ===== Lists ===== */
+  .chapter ul, .chapter ol { padding-left: 22px; }
+  .chapter li { margin-bottom: 5px; font-size: 14.5px; }
+
+  /* ===== Table ===== */
+  table {
+    width: 100%; border-collapse: collapse; margin: 16px 0;
+    font-size: 14px;
+  }
+  th { background: var(--primary); color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; }
+  td { padding: 10px 14px; border-bottom: 1px solid #eee; }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  /* ===== FAQ ===== */
+  .faq-item { margin-bottom: 20px; }
+  .faq-q {
+    font-weight: 700; color: var(--primary-dark); font-size: 15px;
+    padding: 10px 14px; background: var(--primary-light);
+    border-radius: 8px; margin-bottom: 6px;
+  }
+  .faq-a { padding: 8px 14px; font-size: 14.5px; color: #444; }
+
+  /* ===== Sub-section List ===== */
+  .op-list { list-style: none; padding-left: 0; }
+  .op-list li {
+    position: relative; padding: 8px 14px 8px 32px; margin-bottom: 6px;
+    background: #fafafa; border-radius: 6px; font-size: 14.5px;
+  }
+  .op-list li::before {
+    content: "\2714"; position: absolute; left: 10px; top: 8px;
+    color: var(--primary); font-weight: 700; font-size: 13px;
+  }
+
+  ol.op-list { counter-reset: operation; }
+  ol.op-list li { counter-increment: operation; }
+  ol.op-list li::before { content: counter(operation) '.'; }
+  #quick-start ul { padding-left: 20px; }
+
+  /* ===== Scroll Offset ===== */
+  .chapter[id], h3[id] { scroll-margin-top: 20px; }
+
+  /* ===== Print ===== */
+  @media print {
+    .sidebar { display: none; }
+    .main-content { margin-left: 0; padding: 20px; max-width: 100%; }
+    .chapter { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+    .cover { background: var(--primary) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .flow-box { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main-content { margin-left: 0; padding: 20px 16px 60px; }
+    .chapter { padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2>云掌柜共享空间</h2>
+      <p>业务操作手册</p>
+    </div>
+    <nav id="sidebarNav">
+      <div class="nav-chapter">第一章 系统概述</div>
+      <a href="#ch1" class="nav-sub">概述内容</a>
+
+      <div class="nav-chapter">第二章 门店初始配置</div>
+      <a href="#ch2-s1" class="nav-sub">1. 创建门店</a>
+      <a href="#ch2-s2" class="nav-sub">2. 配置支付收款</a>
+      <a href="#ch2-s3" class="nav-sub">3. 创建房间</a>
+      <a href="#ch2-s4" class="nav-sub">4. 添加硬件设备</a>
+      <a href="#ch2-s5" class="nav-sub">5. 配置充值优惠</a>
+      <a href="#ch2-s6" class="nav-sub">6. 配置会员体系</a>
+      <a href="#ch2-s7" class="nav-sub">7. 设置门店模板</a>
+      <a href="#ch2-s8" class="nav-sub">8. 配置团购</a>
+      <a href="#ch2-s9" class="nav-sub">9. 配置保洁</a>
+      <a href="#ch2-s10" class="nav-sub">10. 语音播报</a>
+      <a href="#ch2-s11" class="nav-sub">11. 上传商品</a>
+
+      <div class="nav-chapter">第三章 完整业务流程</div>
+      <a href="#ch3-1" class="nav-sub">3.1 顾客消费流程</a>
+      <a href="#ch3-2" class="nav-sub">3.2 团购券消费</a>
+      <a href="#ch3-3" class="nav-sub">3.3 保洁工作流程</a>
+      <a href="#ch3-4" class="nav-sub">3.4 商品购买流程</a>
+
+      <div class="nav-chapter">第四章 PC 端操作</div>
+      <a href="#ch4" class="nav-sub">管理指南</a>
+      <a href="#pc-workspace" class="nav-sub">门店工作台</a>
+
+      <div class="nav-chapter">第五章 手机管理端</div>
+      <a href="#ch5" class="nav-sub">店长指南</a>
+
+      <div class="nav-chapter">第六章 保洁员操作</div>
+      <a href="#ch6" class="nav-sub">保洁指南</a>
+
+      <div class="nav-chapter">第七章 顾客使用</div>
+      <a href="#ch7" class="nav-sub">顾客指南</a>
+
+      <div class="nav-chapter">第八章 团购配置详解</div>
+      <a href="#ch8-group" class="nav-sub">团购配置说明</a>
+
+      <div class="nav-chapter">第九章 硬件配置详解</div>
+      <a href="#ch9-hw" class="nav-sub">硬件配置说明</a>
+
+      <div class="nav-chapter">第十章 商户创建详解</div>
+      <a href="#ch10-store" class="nav-sub">商户创建说明</a>
+      <a href="#cleaning-notice" class="nav-sub">保洁通知配置</a>
+
+      <div class="nav-chapter">第十一章 FAQ</div>
+      <a href="#ch11" class="nav-sub">常见问题</a>
+    </nav>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main-content">
+
+    <!-- Cover -->
+    <div class="cover">
+      <h1>云掌柜共享空间 · 业务操作手册</h1>
+      <p>共享空间系统操作指南</p>
+      <div class="version">2026 年 11 月 17 日更新 · 适用于按时段预约的共享空间</div>
+    </div>
+
+    <section class="toc" id="quick-start" aria-labelledby="quick-start-title">
+      <h2 id="quick-start-title">按使用场景查找</h2>
+      <ul>
+        <li><strong>PC 端</strong>　<a href="#ch4">日常后台操作</a>、<a href="#ch2">首次配置</a>、<a href="#ch10-store">账号与门店权限</a></li>
+        <li><strong>用户端</strong>　<a href="#ch7">预约、付款、优惠券和入场</a>、<a href="#ch3-2">团购券使用</a></li>
+        <li><strong>手机管理端</strong>　<a href="#ch5">商户和店长</a>、<a href="#ch6">保洁员</a></li>
+      </ul>
+    </section>
+
+    <!-- TOC -->
+    <div class="toc" id="toc">
+      <h2>目 录</h2>
+      <ol>
+        <li><a href="#ch1">第一章：系统概述</a></li>
+        <li><a href="#ch2">第二章：门店初始配置（从零开始）</a>
+          <div class="toc-sub"><ol>
+            <li><a href="#ch2-s1">创建门店</a></li>
+            <li><a href="#ch2-s2">配置支付收款</a></li>
+            <li><a href="#ch2-s3">创建房间</a></li>
+            <li><a href="#ch2-s4">添加硬件设备</a></li>
+            <li><a href="#ch2-s5">配置充值优惠</a></li>
+            <li><a href="#ch2-s6">配置会员体系</a></li>
+            <li><a href="#ch2-s7">设置门店模板</a></li>
+            <li><a href="#ch2-s8">配置团购（可选）</a></li>
+            <li><a href="#ch2-s9">配置保洁（可选）</a></li>
+            <li><a href="#ch2-s10">配置语音播报（可选）</a></li>
+            <li><a href="#ch2-s11">上传商品（可选）</a></li>
+          </ol></div>
+        </li>
+        <li><a href="#ch3">第三章：完整业务流程</a></li>
+        <li><a href="#ch4">第四章：PC 端操作指南</a></li>
+        <li><a href="#ch5">第五章：手机管理端操作指南</a></li>
+        <li><a href="#ch6">第六章：保洁员操作指南</a></li>
+        <li><a href="#ch7">第七章：顾客使用指南</a></li>
+        <li><a href="#ch8-group">第八章：团购配置详解</a></li>
+        <li><a href="#ch9-hw">第九章：硬件配置详解</a></li>
+        <li><a href="#ch10-store">第十章：商户创建详解</a></li>
+        <li><a href="#ch11">第十一章：常见问题 FAQ</a></li>
+      </ol>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- 第一章：系统概述 -->
+    <!-- ================================================================ -->
+    <div class="chapter" id="ch1">
+      <div class="chapter-header">
+        <h2>第一章：系统概述</h2>
+        <div class="chapter-summary">
+          <strong>本章概要：</strong>了解云掌柜共享空间系统的定位、组成和核心业务流程，建立整体认知。
+        </div>
+      </div>
+
+      <h3>什么是云掌柜共享空间？</h3>
+      <p>云掌柜共享空间面向按时段运营的共享空间，适用于茶室、棋牌室、台球室、影音空间、运动场馆等业态。顾客通过微信小程序预约和支付，门店可按实际安装的设备提供自助开门、通断电及语音提示。</p>
+
+      <h3>系统组成</h3>
+      <table>
+        <thead>
+          <tr><th>组件</th><th>说明</th><th>使用人群</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>微信小程序</strong></td><td>面向顾客的移动端入口，支持选房、下单、支付、设备控制、充值、商品购买等</td><td>顾客、保洁员、店长</td></tr>
+          <tr><td><strong>管理后台</strong></td><td>面向管理员的 Web 端管理平台，涵盖门店、房间、设备、订单、财务等全模块管理</td><td>平台管理员、门店老板/店长</td></tr>
+          <tr><td><strong>硬件设备</strong></td><td>IoT 物联网设备，包括智能门锁、智能电源控制器、云喇叭、智能灯光/空调控制器等</td><td>系统自动调用</td></tr>
+        </tbody>
+      </table>
+
+      <h3>支持的业态类型</h3>
+      <p>可按门店的实际业态配置空间类别、计费和预约规则。</p>
+      <ul>
+        <li><strong>KTV</strong> — 按小时计费的自助唱歌包间</li>
+        <li><strong>台球</strong> — 按时段预约的球桌</li>
+        <li><strong>麻将</strong> — 按小时计费的自助麻将房</li>
+        <li><strong>棋牌</strong> — 象棋、围棋、扑克等棋牌娱乐</li>
+        <li><strong>私人影院</strong> — 按场次/小时计费的私密观影空间</li>
+      </ul>
+
+      <h3>核心业务流程</h3>
+      <div class="flow-diagram">
+        <div class="flow-box">顾客扫码</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box">选房下单</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box">微信支付</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box">订单详情<br>通电开门</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box">使用房间</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box">续费/结束</div>
+        <div class="flow-break"></div>
+        <div class="flow-arrow-down"></div>
+        <div class="flow-box alt">断电清洁</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box alt">保洁打扫</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box alt">房间就绪</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box alt">迎接下一位</div>
+      </div>
+
+      <div class="callout callout-tip">
+        <div class="callout-title">💡 提示</div>
+        整个流程全程自助、无需店员值守。顾客只需一部手机即可完成从开房到退房的全部操作。
+      </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- 第二章：门店初始配置 -->
+    <!-- ================================================================ -->
+    <div class="chapter" id="ch2">
+      <div class="chapter-header">
+        <h2>第二章：门店初始配置（从零开始）<span class="role-badge role-admin">管理员</span></h2>
+        <div class="chapter-summary">
+          <strong>本章概要：</strong>手把手教你从零搭建一个新门店。按照以下 11 个步骤依次完成，即可让门店上线运营。带"可选"标签的步骤可根据实际需求决定是否配置。
+        </div>
+      </div>
+
+      <div class="callout callout-important">
+        <div class="callout-title">📌 重要提醒</div>
+        请严格按照步骤顺序操作，因为后续步骤依赖前面的配置。例如：必须先创建门店和房间，才能绑定设备。
+      </div>
+
+      <!-- Step 1 -->
+      <div class="step" id="ch2-s1">
+        <div class="step-number">1</div>
+        <h4>创建门店</h4>
+        <ul>
+          <li>登录管理后台（Web 端）</li>
+          <li>进入「门店与设备 → 门店管理」，点击「新增」</li>
+          <li>填写门店基本信息：
+            <ul>
+              <li><strong>门店名称</strong> — 顾客在小程序中看到的名称，建议简洁好记</li>
+              <li><strong>门店地址</strong> — 精确到门牌号，顾客导航依赖此地址</li>
+              <li><strong>联系方式</strong> — 顾客可一键拨打的客服电话</li>
+              <li><strong>营业时间</strong> — 例如 10:00 - 02:00</li>
+            </ul>
+          </li>
+          <li>上传门店图片（门头照、环境照等），提升顾客信任感</li>
+          <li>点击「保存」完成创建</li>
+        </ul>
+        <div class="callout callout-tip">
+          <div class="callout-title">💡 小贴士</div>
+          门店地址填写越精确，顾客在小程序中的定位和导航就越准确，减少找不到门店的困扰。
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step" id="ch2-s2">
+        <div class="step-number">2</div>
+        <h4>配置微信支付收款</h4>
+        <ol class="op-list">
+          <li>确认服务商已开通该门店的微信特约商户号。</li>
+          <li>在 PC「门店与设备 → 门店管理」找到对应门店，点击右侧「微信商户号」。</li>
+          <li>输入该门店的微信特约商户号并保存。服务商凭证由系统管理员统一配置。</li>
+          <li>验收时核对支付成功后的订单详情、支付流水、实际收款商户与退款结果。历史支付和退款按原收款商户处理。</li>
+        </ol>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step" id="ch2-s3">
+        <div class="step-number">3</div>
+        <h4>创建房间</h4>
+        <ul>
+          <li>进入「房间管理」→ 点击「创建房间」</li>
+          <li>选择所属门店（若已创建多个门店）</li>
+          <li>填写房间信息：
+            <ul>
+              <li><strong>房间名称</strong> — 如 "VIP大包"、"3号台球桌"</li>
+              <li><strong>房间类型</strong> — 小包 / 中包 / 大包 / 豪包 / 商务包 / 斯洛克 / 中式黑八 等</li>
+              <li><strong>房间图片</strong> — 上传实拍照片，提升下单率</li>
+            </ul>
+          </li>
+          <li>设置价格策略：
+            <ul>
+              <li><strong>工作日价格</strong> — 周一至周四的单价（元/小时）</li>
+              <li><strong>周末价格</strong> — 周五至周日/节假日的单价</li>
+              <li><strong>分时段价格</strong>（可选）— 不同时段可设不同价格，如白天场/黄金场</li>
+            </ul>
+          </li>
+          <li>设置押金金额（用于保障设备安全）</li>
+          <li>点击「保存」</li>
+        </ul>
+        <div class="callout callout-tip">
+          <div class="callout-title">💡 小贴士</div>
+          建议先规划好房间类型和价格体系再创建，避免反复修改。房间图片要明亮、整洁，有助于提升顾客下单意愿。
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step" id="ch2-s4">
+        <div class="step-number">4</div>
+        <h4>添加硬件设备</h4>
+        <ol class="op-list">
+          <li>在 PC「设备管理」新增物联网网关，填写网关编号，再将网关绑定到正确门店。</li>
+          <li>选择网关行的「配网」。页面会自动同步网关下的子设备，必要时可点击「同步设备」再次查询。</li>
+          <li>在设备列表核对类型和门店，再分别为电控、门禁、音箱绑定空间。独立门店大门按需绑定。</li>
+          <li>在空闲空间分别验证开门、通电、断电和语音。具体同步规则见<a href="#ch9-hw">硬件配置详解</a>。</li>
+        </ol>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="step" id="ch2-s5">
+        <div class="step-number">5</div>
+        <h4>配置充值优惠</h4>
+        <ul>
+          <li>在小程序端进入「门店管理」→「充值优惠」</li>
+          <li>创建优惠规则，例如：
+            <ul>
+              <li>充 100 送 20</li>
+              <li>充 200 送 50</li>
+              <li>充 500 送 150</li>
+            </ul>
+          </li>
+          <li>设置每条规则的启用/禁用状态</li>
+          <li>保存后顾客即可在小程序「充值」页面看到优惠信息</li>
+        </ul>
+        <div class="callout callout-tip">
+          <div class="callout-title">💡 小贴士</div>
+          充值优惠是提升顾客粘性和预付费比例的有效手段。建议设置 3 档优惠梯度，满足不同消费水平。
+        </div>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="step" id="ch2-s6">
+        <div class="step-number">6</div>
+        <h4>配置会员体系</h4>
+        <ul>
+          <li>在小程序端进入「门店管理」→「会员配置」</li>
+          <li>创建会员等级（如：普通会员 / 银卡 / 金卡 / 钻石卡）</li>
+          <li>为每个等级设置对应的消费折扣（如金卡 9 折、钻石卡 8 折）</li>
+          <li>按积分门槛配置等级，并核对门店当前会员规则。</li>
+        </ul>
+      </div>
+
+      <!-- Step 7 -->
+      <div class="step" id="ch2-s7">
+        <div class="step-number">7</div>
+        <h4>设置门店模板</h4>
+        <ul>
+          <li>进入「门店管理」→「设置模板」</li>
+          <li>选择小程序展示模板（系统提供多种模板风格）</li>
+          <li>预览效果后确认保存</li>
+        </ul>
+        <div class="callout callout-tip">
+          <div class="callout-title">💡 小贴士</div>
+          模板决定了顾客在小程序中看到门店的展示样式，建议根据门店定位选择合适的模板。
+        </div>
+      </div>
+
+      <!-- Step 8 -->
+      <div class="step" id="ch2-s8">
+        <div class="step-number">8</div>
+        <h4>配置团购（可选）</h4>
+        <ol class="op-list">
+          <li>在 PC「门店管理」目标门店行点击「绑定团购门店」，输入团购服务商门店 ID。</li>
+          <li>根据门店经营的平台点击「美团团购授权」或「抖音团购授权」，使用相应商家账号完成授权。</li>
+          <li>在「时长套餐」关联平台商品 ID，核对适用空间、时长和可用时段。</li>
+          <li>按<a href="#ch8-group">团购配置详解</a>验收验券、核销和订单。</li>
+        </ol>
+      </div>
+
+      <!-- Step 9 -->
+      <div class="step" id="ch2-s9">
+        <div class="step-number">9</div>
+        <h4>配置保洁（可选）</h4>
+        <ol class="op-list">
+          <li>在 PC「员工与保洁员」或手机管理端添加保洁员，并关联当前门店。</li>
+          <li>检查目标空间的「跳过保洁」开关。需要订单结束时产生保洁任务的空间应关闭该开关。</li>
+          <li>在 PC「门店管理 → 保洁通知」设置该门店的通知渠道。参见<a href="#cleaning-notice">保洁通知配置</a>。</li>
+          <li>保洁员在任务大厅接单和提交完成。门店管理员按人员与结算期间办理结算。</li>
+        </ol>
+      </div>
+
+      <!-- Step 10 -->
+      <div class="step" id="ch2-s10">
+        <div class="step-number">10</div>
+        <h4>配置语音播报（可选）</h4>
+        <ul>
+          <li>进入「语音播报设置」</li>
+          <li>设置开门时的语音内容（如："欢迎光临，祝您消费愉快"）</li>
+          <li>设置关门时的语音内容（如："感谢光临，欢迎下次再来"）</li>
+          <li>可通过云喇叭测试播报效果</li>
+        </ul>
+      </div>
+
+      <!-- Step 11 -->
+      <div class="step" id="ch2-s11">
+        <div class="step-number">11</div>
+        <h4>上传商品（可选）</h4>
+        <ul>
+          <li>进入商城管理模块</li>
+          <li>添加商品分类（如：酒水饮料、零食小食、果盘等）</li>
+          <li>逐个添加商品信息：
+            <ul>
+              <li>商品名称、图片、描述</li>
+              <li>价格和库存数量</li>
+            </ul>
+          </li>
+          <li>上架后顾客即可在小程序商城中浏览和购买</li>
+        </ul>
+      </div>
+
+      <div class="callout callout-success">
+        <div class="callout-title">✅ 配置完成</div>
+        正式营业前，用测试订单核对预约、付款、入场、结束、退款或押金、房态和保洁任务。对已启用的团购、播报和通知单独验收。
+      </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- 第三章：完整业务流程 -->
+    <!-- ================================================================ -->
+    <div class="chapter" id="ch3">
+      <div class="chapter-header">
+        <h2>第三章：完整业务流程</h2>
+        <div class="chapter-summary">
+          <strong>本章概要：</strong>详细描述四大核心业务流程——顾客消费、团购核销、保洁工作和商品购买，帮助您全面理解系统运作方式。
+        </div>
+      </div>
+
+      <!-- 3.1 顾客消费流程 -->
+      <h3 id="ch3-1">3.1 顾客消费流程</h3>
+      <p>这是最核心的业务流程，覆盖顾客从打开小程序到完成消费的完整路径：</p>
+
+      <div class="flow-diagram">
+        <div class="flow-box">打开小程序</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box">定位/选择门店</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box">浏览房间</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box">选择消费模式</div>
+        <div class="flow-break"></div>
+        <div class="flow-arrow-down"></div>
+        <div class="flow-box">确认订单</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box">微信支付</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box alt">订单详情<br>通电开门</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box alt">使用房间</div>
+        <div class="flow-break"></div>
+        <div class="flow-arrow-down"></div>
+        <div class="flow-box">续单/结束</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box">订单结束<br>设备联动</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box alt">通知保洁</div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <h4>打开微信小程序</h4>
+        <p>顾客通过微信扫码或微信搜索"云掌柜共享空间"进入小程序。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <h4>选择门店</h4>
+        <p>系统自动根据定位显示附近门店列表，顾客也可手动切换门店。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <h4>浏览房间</h4>
+        <p>查看房间类型、价格、实时状态（空闲/使用中）等信息。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">4</div>
+        <h4>选择消费模式</h4>
+        <p>支持三种消费方式：按小时消费、套餐消费、团购券消费。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">5</div>
+        <h4>确认订单并支付</h4>
+        <p>核对金额和押金信息后，使用微信支付完成付款。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">6</div>
+        <h4>按订单时间入场</h4>
+        <p>微信支付确认后进入订单详情。到允许入场时间后，点击「通电开门」。门店设有独立大门门禁时，可使用「门店大门」。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">7</div>
+        <h4>使用房间</h4>
+        <p>在订单详情使用当前空间已配置的设备操作，可见按钮由订单状态和门店设备决定。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">8</div>
+        <h4>续单</h4>
+        <p>如需延长使用时间，点击「续单」按钮选择续时时长并支付。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">9</div>
+        <h4>结束使用</h4>
+        <p>按订单详情可用操作提前结束，或等系统到时结束。系统按设备绑定下发断电等控制，押金和退款状态在订单或支付记录中核对。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">10</div>
+        <h4>通知保洁</h4>
+        <p>需要保洁的空间会在订单结束后生成任务。保洁员可在「任务大厅」查看，消息提醒按门店渠道设置发送。</p>
+      </div>
+
+      <!-- 3.2 团购券消费流程 -->
+      <h3 id="ch3-2">3.2 团购券消费流程</h3>
+      <p>顾客在美团或抖音购买团购券后的到店核销流程：</p>
+
+      <div class="flow-diagram">
+        <div class="flow-box">美团/抖音<br>购买团购券</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box">到店出示<br>团购券码</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box">输入券码<br>验券</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box alt">兑换下单<br>按时入场</div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <h4>购买团购券</h4>
+        <p>顾客在美团 App 或抖音 App 中搜索门店，购买团购套餐券。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <h4>到店出示券码</h4>
+        <p>到达门店后，打开美团/抖音订单页面获取团购券码。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <h4>验券</h4>
+        <p>在小程序「团购」页面输入券码，或由管理员在管理界面帮助验券。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">4</div>
+        <h4>核销下单</h4>
+        <p>确认券信息和适用空间，点击「团购兑换」。下单成功后进入订单详情，按可入场时间操作「通电开门」。</p>
+      </div>
+
+      <!-- 3.3 保洁工作流程 -->
+      <h3 id="ch3-3">3.3 保洁工作流程</h3>
+
+      <div class="flow-diagram">
+        <div class="flow-box">订单结束</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box">系统发布<br>保洁任务</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box">保洁员接单</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box">开始保洁</div>
+        <div class="flow-break"></div>
+        <div class="flow-arrow-down"></div>
+        <div class="flow-box">系统开门</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box">打扫完成</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box">管理员确认</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box alt">任务结算</div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <h4>任务发布</h4>
+        <p>顾客订单结束后，系统自动将保洁任务发布到「任务大厅」。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <h4>保洁员接单</h4>
+        <p>保洁员在小程序「任务大厅」中看到新任务（含门店地址、房间号、费用），点击「接单」。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <h4>开始保洁</h4>
+        <p>点击「开始」后，按任务页实际显示使用「开门开电」或「仅开门锁」进入空间。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">4</div>
+        <h4>完成确认</h4>
+        <p>打扫完毕后按页面要求上传交付内容，提交完成。由门店管理员办理结算。</p>
+      </div>
+
+      <!-- 3.4 商品购买流程 -->
+      <h3 id="ch3-4">3.4 商品购买流程</h3>
+
+      <div class="flow-diagram">
+        <div class="flow-box">进入商城</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box">浏览商品</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box">加入购物车</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box">提交订单</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box">微信支付</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box alt">配送商品</div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <h4>进入商城</h4>
+        <p>顾客在小程序首页点击「商品」入口进入商城页面。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <h4>选购商品</h4>
+        <p>浏览商品分类，将需要的商品加入购物车。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <h4>下单支付</h4>
+        <p>确认购物车商品后提交订单，使用微信支付完成付款。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">4</div>
+        <h4>商品配送</h4>
+        <p>管理员或工作人员收到订单通知后，将商品送至对应房间。</p>
+      </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- 第四章：平台管理员操作指南 -->
+    <!-- ================================================================ -->
+    <div class="chapter" id="ch4">
+      <div class="chapter-header">
+        <h2>第四章：PC 端操作指南<span class="role-badge role-admin">平台管理员与门店人员</span></h2>
+        <div class="chapter-summary">
+          <strong>本章概要：</strong>平台管理员是系统最高权限角色，负责所有门店的全局管理，包括门店创建、设备管理、支付配置、用户管理、订单管理等核心功能。
+        </div>
+      </div>
+
+      <h3 id="pc-login">PC 登录与工作台</h3>
+      <ol class="op-list">
+        <li>打开 部署时配置的共享空间管理后台，输入账号和密码。系统根据账号关联租户。</li>
+        <li>在工作台选择当前门店，再查看经营概览、实时房态、预约订单、会员、营销、商品和保洁记录。</li>
+        <li>门店列表为空时，请管理员核对 PC 账号状态、所属租户、角色与门店数据范围。手机管理身份另需绑定门店。</li>
+      </ol>
+      <h3>4.1 门店管理</h3>
+      <ul class="op-list">
+        <li>创建 / 编辑 / 删除门店</li>
+        <li>设置门店基本信息（名称、地址、营业时间、联系方式、门店图片）</li>
+        <li>设置门店小程序展示模板</li>
+        <li>续费门店服务期限（确保门店服务不过期）</li>
+        <li>一键清洁并结单（紧急情况下快速清理房间状态）</li>
+        <li>提前结束房间订单（应对特殊情况）</li>
+      </ul>
+
+      <h3>4.2 房间管理</h3>
+      <ul class="op-list">
+        <li>创建 / 编辑 / 删除房间</li>
+        <li>设置房间类型和价格策略</li>
+        <li>启用 / 禁用房间（如维修期间暂停使用）</li>
+        <li>查看房间实时状态（空闲 / 使用中 / 保洁中 / 已禁用）</li>
+      </ul>
+
+      <h3>4.3 设备管理</h3>
+      <ul class="op-list">
+        <li>添加 / 删除 IoT 设备</li>
+        <li>绑定设备到指定门店和房间</li>
+        <li>设置门锁自动关锁时间</li>
+        <li>远程控制设备（通电 / 断电 / 开门 / 关门）</li>
+        <li>查看设备使用记录和在线状态</li>
+      </ul>
+      <div class="callout callout-warn">
+        <div class="callout-title">⚠️ 注意</div>
+        进行远程控制操作时请确认房间状态，避免在顾客使用中误操作断电。
+      </div>
+
+      <h3>4.4 支付配置</h3>
+      <p>门店收款走微信服务商模式，按<a href="#ch2-s2">微信支付收款</a>绑定特约商户号。日常对账进入「支付与退款」，按订单号查支付和退款记录。</p>
+
+      <h3>4.5 用户管理</h3>
+      <ul class="op-list">
+        <li>查看所有注册用户列表</li>
+        <li>给用户余额充值（处理顾客充值需求）</li>
+        <li>编辑 / 删除用户信息</li>
+        <li>导出用户数据（用于数据分析或备份）</li>
+      </ul>
+
+      <h3>4.6 订单管理</h3>
+      <ul class="op-list">
+        <li>查看所有订单列表（支持按门店、状态、时间筛选）</li>
+        <li>按实际订单状态使用代客下单、取消、退款或结束操作，并在支付记录核对结果。</li>
+      </ul>
+
+      <h3>4.7 支付订单管理</h3>
+      <ul class="op-list">
+        <li>查看支付流水记录</li>
+        <li>导出支付数据（用于财务对账）</li>
+      </ul>
+
+      <h3>4.8 团购管理</h3>
+      <p>在「门店管理」绑定团购服务商门店、发起美团及抖音授权。在「时长套餐」管理适用空间及商品关联，在「团购管理」查询核销记录。具体配置见<a href="#ch8-group">团购配置详解</a>。</p>
+
+      <h3>4.9 广告管理</h3>
+      <ul class="op-list">
+        <li>创建 / 编辑 / 删除首页 Banner 广告</li>
+        <li>设置广告展示顺序（排序）</li>
+        <li>导出广告数据（查看广告效果）</li>
+      </ul>
+
+      <h3>4.10 人脸识别管理</h3>
+      <ul class="op-list">
+        <li>查看人脸识别记录</li>
+        <li>管理人脸黑名单</li>
+        <li>将识别记录加入 / 移出黑名单</li>
+      </ul>
+      <div class="callout callout-warn">
+        <div class="callout-title">⚠️ 注意</div>
+        人脸识别数据涉及用户隐私，请严格遵守相关法律法规，仅在合法授权范围内使用。
+      </div>
+
+      <h3>4.11 加盟管理</h3>
+      <ul class="op-list">
+        <li>管理加盟信息（加盟商资料、合同期限等）</li>
+      </ul>
+
+      <h3>4.12 平台参数配置</h3>
+      <div class="callout callout-warn">
+        <div class="callout-title">⚠️ 重要提示</div>
+        平台参数配置涉及系统核心功能（支付回调、硬件控制、团购核销），配置错误将导致相关功能不可用。请务必核对后保存。
+      </div>
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <h4>操作路径</h4>
+        <p>管理后台左侧菜单 → <strong>基础设施</strong> → <strong>平台配置</strong></p>
+      </div>
+
+      <h4>配置项说明</h4>
+      <table class="config-table">
+        <thead>
+          <tr>
+            <th>配置项</th>
+            <th>说明</th>
+            <th>示例</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>接口域名</strong></td>
+            <td>后端 API 的域名地址，用于微信支付回调等。格式要求：不带 https:// 前缀，不带结尾 /</td>
+            <td>openapi.yunlaoban.vip</td>
+          </tr>
+          <tr>
+            <td><strong>应用ID</strong></td>
+            <td>第三方 ISP 平台的应用ID，用于硬件设备控制（门锁、喇叭、配网）和团购核销</td>
+            <td>由集成管理员从集成服务商获取</td>
+          </tr>
+          <tr>
+            <td><strong>密钥</strong></td>
+            <td>第三方 ISP 平台的密钥，与应用ID配套使用</td>
+            <td>由集成管理员填写</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <h4>操作步骤</h4>
+        <ol class="op-list">
+          <li>登录管理后台（需要管理员权限）</li>
+          <li>点击左侧菜单「基础设施」→「平台配置」</li>
+          <li>填写或修改配置项（应用ID和密钥从第三方 ISP 平台获取）</li>
+          <li>点击「保存配置」按钮</li>
+          <li>确认弹窗中点击「确定」</li>
+          <li>保存成功后配置立即生效</li>
+        </ol>
+      </div>
+
+      <div class="callout callout-tip">
+        <div class="callout-title"> 如何获取应用ID和密钥</div>
+        <ol>
+          <li>登录第三方 ISP 平台管理后台</li>
+          <li>进入「应用管理」或「开发者中心」</li>
+          <li>找到已创建的应用，复制应用ID和密钥</li>
+          <li>粘贴到本配置页面</li>
+        </ol>
+      </div>
+
+      <div class="callout callout-warn">
+        <div class="callout-title">⚠️ 注意事项</div>
+        <ul>
+          <li>接口域名必须与实际部署的 API 域名一致，否则微信支付回调会失败</li>
+          <li>应用ID和密钥必须从第三方 ISP 平台获取，不能使用其他平台的凭证</li>
+          <li>配置保存后立即生效，无需重启服务</li>
+          <li>如配置错误导致功能异常，可重新进入此页面修改</li>
+        </ul>
+      </div>
+
+      <h3 id="pc-workspace">4.13 门店工作台</h3>
+      <p>进入业务页面后先选择当前门店，再按业务查找菜单。操作前核对门店、空间和订单编号。</p>
+      <ul class="op-list">
+        <li><strong>房态与预约</strong>　在「实时房态」查看空间状态、处理入场和保洁。在「预约订单」查找订单，按状态处理代客下单、取消与结束。</li>
+        <li><strong>会员与营销</strong>　在「门店会员」和「员工与保洁员」维护人员，在「充值规则」「优惠券」「时长套餐」「VIP 规则」设置权益。指定发券和活动发券见<a href="#coupon-issue">手机端优惠券管理</a>。</li>
+        <li><strong>财务</strong>　在「支付与退款」按订单号对账，在「会员资金流水」查看余额与赠送余额的变动。</li>
+        <li><strong>商品与寄存</strong>　先在「商品分类」和「商品管理」配置商品，再在「商品订单」确认交付。寄存前配置「寄存商品配置」，在「商品寄存」办理存取。</li>
+        <li><strong>保洁与设备</strong>　在「保洁任务」「保洁结算记录」核对进度和费用，在「设备操作记录」查询开门和通断电操作。</li>
+      </ul>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- 第五章：门店老板/店长操作指南 -->
+    <!-- ================================================================ -->
+    <div class="chapter" id="ch5">
+      <div class="chapter-header">
+        <h2>第五章：手机管理端操作指南<span class="role-badge role-boss">商户与店长</span></h2>
+        <div class="chapter-summary">
+          <strong>本章概要：</strong>店长负责单个门店的日常运营管理，通过小程序即可完成绝大部分管理操作，包括房间管理、订单处理、会员运营、经营统计等。
+        </div>
+      </div>
+
+      <p>用已绑定门店的手机号登录微信小程序，进入「个人中心 → 功能专区」。常用入口包括「门店管理」「房间控制」「订单管理」「用户管理」「团购验券」「保洁订单」和「数据统计」。</p>
+      <h3>5.1 门店信息设置</h3>
+      <div class="step">
+        <div class="step-number">1</div>
+        <h4>操作路径</h4>
+        <p>在小程序「个人中心」→ 门店管理 中进入编辑页面。</p>
+      </div>
+      <ul class="op-list">
+        <li>编辑门店名称、地址、联系电话</li>
+        <li>上传/更换门店图片</li>
+        <li>设置语音播报内容（开门/关门提示语）</li>
+      </ul>
+
+      <h3>5.2 房间管理</h3>
+      <ul class="op-list">
+        <li>查看房间列表和实时状态</li>
+        <li>编辑房间信息（价格、图片、类型）</li>
+        <li>启用 / 禁用房间（如设备维修时暂停使用）</li>
+        <li>删除不再使用的房间</li>
+      </ul>
+
+      <h3>5.3 设备操作</h3>
+      <ul class="op-list">
+        <li>添加 / 删除设备</li>
+        <li>远程开门（门店大门 / 房间门）</li>
+        <li>操作房间设备（通电 / 断电 / 灯光开关 / 空调控制）</li>
+        <li>测试云喇叭播报效果</li>
+        <li>校准智能锁（如锁具状态异常时）</li>
+      </ul>
+      <div class="callout callout-tip">
+        <div class="callout-title">💡 小贴士</div>
+        遇到顾客反馈门锁无法打开时，可先尝试远程开门帮助顾客进入，然后检查设备状态。
+      </div>
+
+      <h3>5.4 订单处理</h3>
+      <ul class="op-list">
+        <li>查看订单列表（所有进行中 / 已完成 / 已取消的订单）</li>
+        <li>帮顾客续费（顾客不会操作时）</li>
+        <li>帮顾客换房（遇到房间问题时）</li>
+        <li>取消订单 / 发起退款</li>
+        <li>修改订单关联用户</li>
+        <li>手动退回押金</li>
+        <li>代客下单（针对不会使用小程序的顾客）</li>
+      </ul>
+
+      <h3>5.5 会员管理</h3>
+      <ul class="op-list">
+        <li>查看会员列表</li>
+        <li>添加 / 编辑会员信息</li>
+        <li>设置会员等级和对应折扣</li>
+        <li>删除会员</li>
+      </ul>
+
+      <h3 id="coupon-issue">5.6 优惠券管理</h3>
+      <ol class="op-list">
+        <li>进入小程序「个人中心 → 功能专区 → 门店管理」，选好门店，进入优惠券管理。</li>
+        <li>点击「添加优惠券」，选择抵扣券、满减券或加时券，按页面填写价值、门槛、有效期和适用条件。</li>
+        <li>给指定朋友发券时，在券列表点击「赠送用户」，选择该门店的目标会员后确认。也可从会员详情进入「赠送优惠券」。</li>
+        <li>多人领券时，在券列表点击「发起活动」，填写活动信息并分享领券入口。活动结束前顾客可领取。</li>
+        <li>顾客在「我的优惠券」查看，预约结算时点「选择已绑定优惠券」选用。需要核对或回收时，从会员详情查看其券记录。</li>
+      </ol>
+
+      <h3>5.7 充值优惠设置</h3>
+      <ul class="op-list">
+        <li>创建充值优惠规则（如：充 100 送 20、充 200 送 50）</li>
+        <li>启用 / 禁用优惠规则</li>
+      </ul>
+
+      <h3>5.8 保洁管理</h3>
+      <ul class="op-list">
+        <li>添加 / 删除保洁员</li>
+        <li>查看保洁任务列表（进行中 / 已完成 / 待确认）</li>
+        <li>结算保洁费用</li>
+        <li>驳回保洁订单（当保洁质量不达标时的异常处理）</li>
+      </ul>
+
+      <h3>5.9 管理员设置</h3>
+      <ul class="op-list">
+        <li>添加门店管理员（如副店长、值班经理）</li>
+        <li>删除管理员</li>
+        <li>分配管理权限</li>
+      </ul>
+
+      <h3>5.10 经营统计</h3>
+      <p>在「经营统计」页面，您可以一目了然地掌握门店运营状况：</p>
+      <ul class="op-list">
+        <li><strong>营业额总览</strong> — 总收入、总订单数</li>
+        <li><strong>收入构成</strong> — 微信支付收入 / 团购收入占比</li>
+        <li><strong>收入明细</strong> — 按日期查看每日收入详情</li>
+        <li><strong>充值明细</strong> — 顾客充值记录和赠送金额</li>
+        <li><strong>订单统计</strong> — 订单数量趋势、客单价</li>
+        <li><strong>消费人数</strong> — 每日/每周/每月消费人次</li>
+        <li><strong>房间使用率</strong> — 各房间的使用率和平均使用时长</li>
+      </ul>
+      <div class="callout callout-tip">
+        <div class="callout-title">💡 小贴士</div>
+        定期查看经营统计，关注房间使用率和高峰时段，有助于优化定价策略和提升营收。
+      </div>
+
+      <h3>5.11 团购验券</h3>
+      <div class="step">
+        <div class="step-number">1</div>
+        <h4>验券操作</h4>
+        <ul>
+          <li>顾客到店后出示团购券码</li>
+          <li>在小程序管理界面找到「团购验券」入口</li>
+          <li>输入顾客提供的券码</li>
+          <li>系统验证通过后自动创建订单并开房</li>
+        </ul>
+      </div>
+
+      <h3>5.12 提现</h3>
+      <ul class="op-list">
+        <li>申请余额提现（将门店收入提现到银行卡）</li>
+        <li>查看提现记录和历史</li>
+      </ul>
+
+      <h3>5.13 预付费配置</h3>
+      <ul class="op-list">
+        <li>设置房间预付费规则（如按消费模式收取预付费）</li>
+      </ul>
+
+      <h3>5.14 黑名单管理</h3>
+      <ul class="op-list">
+        <li>查看黑名单列表</li>
+        <li>添加用户到黑名单（针对恶意破坏、逃单等行为）</li>
+        <li>将用户移出黑名单（如误判需恢复）</li>
+      </ul>
+      <div class="callout callout-warn">
+        <div class="callout-title">⚠️ 注意</div>
+        加入黑名单后，该用户将无法在本门店下单。请谨慎操作，确保有充分理由。
+      </div>
+
+      <h3>5.15 NFC 设置</h3>
+      <ul class="op-list">
+        <li>获取 NFC 数据，用于制作门禁卡或其他 NFC 设备</li>
+      </ul>
+
+      <h3>5.16 抖音门店</h3>
+      <ul class="op-list">
+        <li>设置抖音门店 ID，关联抖音平台上的门店信息</li>
+      </ul>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- 第六章：保洁员操作指南 -->
+    <!-- ================================================================ -->
+    <div class="chapter" id="ch6">
+      <div class="chapter-header">
+        <h2>第六章：保洁员操作指南<span class="role-badge role-cleaner">保洁员</span></h2>
+        <div class="chapter-summary">
+          <strong>本章概要：</strong>保洁员通过小程序「任务大厅」接收和完成保洁任务。本章介绍从查看任务、接单、打扫到结算收入的完整流程。
+        </div>
+      </div>
+
+      <h3>6.1 查看任务</h3>
+      <div class="step">
+        <div class="step-number">1</div>
+        <h4>进入任务大厅</h4>
+        <ul>
+          <li>用保洁员账号进入「个人中心 → 功能专区 → 任务大厅」。</li>
+          <li>查看当前可接的保洁任务列表</li>
+          <li>每个任务卡片显示：门店地址、房间号、保洁费用</li>
+        </ul>
+      </div>
+      <div class="callout callout-tip">
+        <div class="callout-title">💡 小贴士</div>
+        门店启用小程序渠道并发布带订阅功能的版本后，任务大厅会显示「订阅提醒」。点击并允许。一次性模板每次授权可接收一条通知。
+      </div>
+
+      <h3>6.2 接单流程</h3>
+      <div class="step">
+        <div class="step-number">1</div>
+        <h4>接受任务</h4>
+        <p>点击任务卡片上的「接单」按钮接受保洁任务。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <h4>开始保洁</h4>
+        <p>到店后点击「开始」，再按页面提示使用「开门开电」或「仅开门锁」。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <h4>进入打扫</h4>
+        <p>进入房间进行清洁打扫。保洁过程中可操作房间设备（开门、开关灯等）。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">4</div>
+        <h4>完成保洁</h4>
+        <p>打扫完毕后，确保房间整洁，点击「完成」按钮提交。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">5</div>
+        <h4>等待结算</h4>
+        <p>门店管理员办理结算后，在「任务统计」查看结算记录。</p>
+      </div>
+
+      <h3>6.3 取消任务</h3>
+      <ul>
+        <li>如果因故无法完成任务，可点击「取消」按钮</li>
+        <li>取消后任务会重新回到「任务大厅」，其他保洁员可接单</li>
+      </ul>
+      <div class="callout callout-warn">
+        <div class="callout-title">⚠️ 注意</div>
+        频繁取消已接任务可能影响您的接单优先级和信誉评分，请谨慎接单。
+      </div>
+
+      <h3>6.4 操作设备</h3>
+      <p>在保洁过程中，您有以下设备操作权限：</p>
+      <ul class="op-list">
+        <li>开门 / 关门</li>
+        <li>开关灯光</li>
+        <li>其他房间设备控制</li>
+      </ul>
+
+      <h3>6.5 查看收入</h3>
+      <ul class="op-list">
+        <li>在「统计」页面查看保洁总收入、本月收入等</li>
+        <li>在「账单」页面查看每笔结算记录（含任务来源、金额、时间）</li>
+      </ul>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- 第七章：顾客使用指南 -->
+    <!-- ================================================================ -->
+    <div class="chapter" id="ch7">
+      <div class="chapter-header">
+        <h2>第七章：顾客使用指南<span class="role-badge role-customer">顾客</span></h2>
+        <div class="chapter-summary">
+          <strong>本章概要：</strong>面向使用小程序的消费者，介绍从登录、选房、下单、使用房间到各项增值服务的完整操作指南。
+        </div>
+      </div>
+
+      <h3>7.1 登录</h3>
+      <div class="step">
+        <div class="step-number">1</div>
+        <h4>打开小程序</h4>
+        <p>打开微信，搜索"云掌柜共享空间"或通过门店二维码扫码进入小程序。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <h4>完成登录</h4>
+        <ul>
+          <li><strong>微信一键登录</strong>（推荐）— 授权微信账号即可快速登录</li>
+          <li><strong>手机号登录</strong> — 输入手机号获取验证码登录</li>
+        </ul>
+      </div>
+
+      <h3>7.2 选择门店</h3>
+      <ul>
+        <li>首页自动显示您附近的门店列表（基于定位）</li>
+        <li>点击门店可查看详细信息（地址、营业时间、房间列表等）</li>
+        <li>如需更换门店，可手动切换</li>
+        <li>支持点击地址导航到门店</li>
+      </ul>
+
+      <h3>7.3 浏览房间</h3>
+      <ul>
+        <li>查看房间列表，包括：类型、价格、当前状态</li>
+        <li>点击房间查看详细信息和实拍图片</li>
+        <li>常见房间类型：
+          <ul>
+            <li>特价包 — 经济实惠的小包间</li>
+            <li>小包 / 中包 / 大包 — 按容量区分</li>
+            <li>豪包 / 商务包 — 高端包间</li>
+            <li>台球桌（斯洛克 / 中式黑八）</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3>7.4 下单消费</h3>
+      <h4>方式一：按小时消费</h4>
+      <div class="step">
+        <div class="step-number">1</div>
+        <h4>选择房间并预订</h4>
+        <p>选择心仪的房间 → 点击「预订」→ 选择消费时长。</p>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <h4>确认并支付</h4>
+        <p>确认订单信息（消费金额 + 押金）→ 使用微信支付完成付款。</p>
+      </div>
+
+      <h4>方式二：套餐消费</h4>
+      <div class="step">
+        <div class="step-number">1</div>
+        <h4>选择套餐</h4>
+        <p>在房间详情页选择套餐 → 确认套餐内容（时长 + 包含项目）→ 微信支付。</p>
+      </div>
+
+      <h4>方式三：团购券消费</h4>
+      <div class="step">
+        <div class="step-number">1</div>
+        <h4>使用团购券</h4>
+        <ul>
+          <li>在美团/抖音购买团购券</li>
+          <li>在目标空间的预约页打开「团购预约」，粘贴或扫描团购券码。</li>
+          <li>核对券信息和预约时间，点击「团购兑换」。成功后从订单详情入场。</li>
+        </ul>
+      </div>
+
+      <h3>7.5 使用房间</h3>
+      <ol class="op-list">
+        <li>付款或团购兑换成功后查看「订单详情」。返回首页后也可从「我的订单」再次打开。</li>
+        <li>在允许入场时间内点击「通电开门」。有独立大门门禁的场地可按需点击「门店大门」。</li>
+        <li>按订单详情提供的操作续时、换房、分享订单或联系门店。空调控制取决于实际硬件。</li>
+      </ol>
+
+      <h3>7.6 续单</h3>
+      <div class="step">
+        <div class="step-number">1</div>
+        <h4>延长使用时间</h4>
+        <ul>
+          <li>在可续时的订单详情选择续时，或扫空间续时码。</li>
+          <li>选择需要续时的时长</li>
+          <li>支付续费金额</li>
+          <li>续单成功，房间使用时间延长</li>
+        </ul>
+      </div>
+
+      <h3>7.7 结束使用</h3>
+      <ul>
+        <li><strong>时间到自动结束</strong>　系统按绑定向设备下发结束控制。</li>
+        <li><strong>手动提前结束</strong> — 点击「结束」按钮可提前结束使用</li>
+        <li>支付过押金的订单可从详情查看退款及押金状态。</li>
+      </ul>
+
+      <h3>7.8 商品购买</h3>
+      <div class="step">
+        <div class="step-number">1</div>
+        <h4>商城购物</h4>
+        <ul>
+          <li>在首页点击「商品」进入商城</li>
+          <li>浏览商品分类，将需要的商品加入购物车</li>
+          <li>提交订单并完成微信支付</li>
+          <li>等待工作人员将商品送至房间</li>
+        </ul>
+      </div>
+
+      <h3>7.9 优惠券</h3>
+      <ul class="op-list">
+        <li>在「个人中心 → 我的优惠券」查看已领优惠券。</li>
+        <li>领取新的优惠券（门店发放的领券活动）</li>
+        <li>预约页点「选择已绑定优惠券」，选中满足门店、空间、门槛和有效期的券，再核对实付金额。</li>
+      </ul>
+
+      <h3>7.10 余额充值</h3>
+      <div class="step">
+        <div class="step-number">1</div>
+        <h4>充值操作</h4>
+        <ul>
+          <li>在「优惠中心」查看当前充值优惠活动</li>
+          <li>选择充值金额（如 100 元、200 元、500 元）</li>
+          <li>支付后余额即时到账</li>
+          <li>如有赠送金额，赠送部分同步到账</li>
+        </ul>
+      </div>
+      <div class="callout callout-tip">
+        <div class="callout-title">💡 小贴士</div>
+        充值后使用余额消费通常可享受更多优惠，且省去每次支付的繁琐操作。建议关注充值优惠活动，选择最划算的档位。
+      </div>
+
+      <h3>7.11 查看订单</h3>
+      <ul class="op-list">
+        <li>在「我的订单」页面查看所有历史订单</li>
+        <li>查看每笔订单的详情：消费时间、金额、房间信息、状态等</li>
+      </ul>
+
+      <h3>7.12 寄存商品</h3>
+      <p>通过小程序查看本人寄存品和记录。实际存取由门店人员办理。</p>
+    </div>
+
+    <!-- ================================================================ -->
+
+    <!-- 第八章：团购配置详解 -->
+    <!-- ================================================================ -->
+    <div class="chapter" id="ch8-group">
+      <div class="chapter-header">
+        <h2>第八章：团购配置详解<span class="role-badge role-admin">管理员</span><span class="role-badge role-boss">店长</span></h2>
+        <div class="chapter-summary">
+          <strong>本章概要</strong>　绑定团购服务商门店，发起美团或抖音授权，并验证顾客预约和核销。
+        </div>
+      </div>
+
+      <h3>8.1 绑定与授权</h3>
+      <ol class="op-list">
+        <li>在美团或抖音开通对应的商家门店并上架团购商品，同时取得团购服务商门店 ID。</li>
+        <li>在 PC「门店与设备 → 门店管理」，找到门店并点击「绑定团购门店」，录入对应的团购服务商门店 ID。一个系统门店对应一个团购服务商门店 ID。</li>
+        <li>在同一门店记录点击「美团团购授权」或「抖音团购授权」。在打开的平台页面用正确的商家账号完成授权。</li>
+        <li>进入「时长套餐」，配置对应平台商品 ID、可用空间、时长、星期和时段等条件。分别使用美团和抖音的测试券验证已开通的平台。</li>
+      </ol>
+
+      <h3>8.2 顾客兑换与商户验券</h3>
+      <p>顾客在空间预约页打开「团购预约」，粘贴或扫码输入团购券，核对券名与预约时间后点击「团购兑换」。商户也可从手机端「个人中心 → 功能专区 → 团购验券」帮助顾客验券。</p>
+      <p>服务端在预检和核销时按相同规则识别平台。HTTPS 开头的券链接或 15 位券码识别为抖音，10 位或 13 位券码识别为美团。</p>
+      <p>兑换并建单后，可在订单详情查看订单与入场时间，在 PC「团购管理」核对核销记录。</p>
+
+      <h3>8.3 提示房间类型不匹配</h3>
+      <ol class="op-list">
+        <li>先核对券信息里的平台商品 ID，以及门店下「时长套餐」是否关联了该商品。已关联时，核对套餐允许的空间、日期和时间。</li>
+        <li>若当前券未匹配到套餐，系统会尝试从券标题识别适用类型。常见关键词包括商务包、豪包、大包、中包和小包。普通券未匹配到类型时，现有规则默认小包。</li>
+        <li>顾客可切换到券适用的空间。若门店确实销售可用于多个空间的券，请为该团购商品设置明确的时长套餐及适用空间。</li>
+      </ol>
+
+      <h3>8.4 取消与撤销</h3>
+      <p>订单取消权限按订单状态和平台规则判断。处理团购订单后，在系统中核对订单状态，再到团购平台核验券是否撤销成功及退款状态。</p>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- 第九章：硬件配置详解 -->
+    <!-- ================================================================ -->
+    <div class="chapter" id="ch9-hw">
+      <div class="chapter-header">
+        <h2>第九章：硬件配置详解<span class="role-badge role-admin">管理员</span></h2>
+        <div class="chapter-summary">
+          <strong>本章概要：</strong>详细介绍系统支持的硬件设备类型、设备绑定规则、远程控制命令和配网流程，帮助您全面了解 IoT 硬件的配置与管理。
+        </div>
+      </div>
+
+      <h3>9.1 当前子设备自动匹配</h3>
+      <table>
+        <thead><tr><th>UIID</th><th>同步结果</th><th>运营侧配置</th></tr></thead>
+        <tbody>
+          <tr><td>0100（返回值 100）</td><td>电控</td><td>绑定实际用电空间。</td></tr>
+          <tr><td>0101（返回值 101）</td><td>门禁开关</td><td>按现场门禁接线绑定空间或独立门店大门。</td></tr>
+          <tr><td>1401</td><td>音箱</td><td>绑定后在语音播报设置中验收。</td></tr>
+          <tr><td>1800</td><td>协调器虚拟设备</td><td>同步时会跳过，无需新增或绑定。</td></tr>
+        </tbody>
+      </table>
+
+      <h3>9.2 网关配网与子设备同步</h3>
+      <ol class="op-list">
+        <li>确保网关已通电并连接网络，在 PC「设备管理」登记网关编号并绑定门店。</li>
+        <li>点击网关行的「配网」，让子设备进入匹配状态。PC 操作无需填写 Wi-Fi 名称或密码。</li>
+        <li>页面自动获取网关下的子设备。已识别子设备进入设备列表并继承门店。手动点击「同步设备」可再查一次。</li>
+        <li>查看新增、更新及跳过数量。协调器会跳过，未知类型需要按设备型号和日志逐台核对。</li>
+      </ol>
+
+      <h3>9.3 空间绑定与控制</h3>
+      <p>在设备列表找到实际设备，点击「绑定」并选择对应空间。自动同步只处理门店归属，具体空间要按现场编号和接线核实。门店大门可按需安装并单独绑定。</p>
+      <p>在空闲时段对照设备编号验证门禁、电控和音箱。订单结束后查看断电与通知记录。设备操作日志可核查指令是否下发，现场观察可确认硬件动作。</p>
+
+      <h3>9.4 订单与硬件联动</h3>
+      <p>顾客在订单详情点击「通电开门」或「门店大门」，系统按订单权限和设备绑定下发控制。顾客续时后检查新的结束时间，到时结束后检查断电、房态与保洁任务。播报依赖门店设置和在线音箱。</p>
+
+      <h3>9.5 下单成功却无法入场</h3>
+      <ul class="op-list">
+        <li>确认订单允许入场、所选空间正确。</li>
+        <li>若顾客点击的是「门店大门」，先确认门店是否实际设置了独立大门门禁。没有独立大门的场地使用订单详情的空间入场操作。</li>
+        <li>核对空间设备是否在线、门禁与电控类型是否正确、设备是否已绑定该空间。</li>
+        <li>记录订单号、门店、空间、操作时间及设备编号，在「设备操作记录」和后端日志定位。</li>
+      </ul>
+
+      <h3>9.6 设备测试</h3>
+      <p>设备绑定完成后，务必进行测试确认：</p>
+      <div class="step">
+        <div class="step-number">1</div>
+        <h4>测试清单</h4>
+        <ul>
+          <li><strong>通电测试</strong> — 点击「通电」按钮，确认房间设备正常通电</li>
+          <li><strong>断电测试</strong> — 点击「断电」按钮，确认设备正常断电</li>
+          <li><strong>开门测试</strong> — 点击「开门」按钮，确认门锁正常开启</li>
+          <li><strong>语音播报测试</strong> — 输入测试文字，确认喇叭正常播报</li>
+          <li><strong>在线状态</strong> — 确认设备状态显示为"在线"</li>
+        </ul>
+      </div>
+      <div class="callout callout-success">
+        <div class="callout-title">✅ 检查清单</div>
+        所有设备测试通过后再正式投入运营。如果某个设备测试失败，请检查设备接线和网络连接，或联系硬件供应商进行排查。
+      </div>
+
+      <h3>9.7 设备维护</h3>
+      <ul class="op-list">
+        <li>定期检查设备在线状态，发现离线设备及时排查</li>
+        <li>门锁电池电量低时及时更换电池</li>
+        <li>网关设备避免断电断网，确保通信稳定</li>
+        <li>云喇叭音量根据环境调整，避免扰民</li>
+        <li>设备固件升级由平台统一推送，无需手动操作</li>
+      </ul>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- 第十章：商户创建详解 -->
+    <!-- ================================================================ -->
+    <div class="chapter" id="ch10-store">
+      <div class="chapter-header">
+        <h2>第十章：商户创建详解<span class="role-badge role-admin">平台管理员</span></h2>
+        <div class="chapter-summary">
+          <strong>本章概要：</strong>详细介绍平台管理员如何创建新门店（商户），包括必填信息、系统自动处理流程、管理员账号生成、默认房间创建和权限分配等完整流程。
+        </div>
+      </div>
+
+      <h3>10.1 创建门店并确认手机管理身份</h3>
+      <ol class="op-list">
+        <li>平台管理员在 PC「门店与设备 → 门店管理」点击「新增」，填写门店资料、负责人手机号与初始房间数量。</li>
+        <li>用填写的手机号关联或创建小程序负责人身份。系统可按填写数量生成初始房间，请在营业前维护真实名称、类型、图片和价格。</li>
+        <li>负责人用绑定手机号登录微信小程序，在「个人中心 → 功能专区 → 门店管理」打开门店。管理员可按需添加店长和保洁员。</li>
+      </ol>
+
+      <h3>10.2 配置 PC 门店账号</h3>
+      <ol class="op-list">
+        <li>在后台「系统管理」建立或启用 PC 登录账号，并关联门店所属租户。</li>
+        <li>为账号分配门店角色、菜单权限与对应的数据范围。</li>
+        <li>用该账号登录，确认可以打开所属门店和工作台。检查到期时间并按权限办理续费。</li>
+      </ol>
+      <p>PC 登录账号与微信小程序人员身份分别维护。创建门店时关联的小程序负责人使用微信登录，PC 登录需要独立的后台账号。</p>
+
+      <h3 id="cleaning-notice">10.3 配置订单结束后的保洁通知</h3>
+      <p>在 PC「门店与设备 → 门店管理」找到目标门店，点击「保洁通知」。按门店选择渠道。</p>
+      <h4>企业微信群机器人</h4>
+      <ol class="op-list">
+        <li>在「修改门店」填写「企业微信webhook」。</li>
+        <li>打开「保洁通知」，选择「企业微信群机器人」并保存渠道。</li>
+        <li>结束一笔测试订单，在目标企业微信群查看通知。</li>
+      </ol>
+      <h4>微信小程序订阅消息</h4>
+      <ol class="op-list">
+        <li>在微信公众平台的「订阅消息」查看对应 AppID 的模板 ID。由超级管理员在弹窗填写模板 ID 和字段映射，再点「保存模板」。同一 AppID 的门店共用模板。</li>
+        <li>现有「待保洁提醒」模板中，<code>thing5</code> 选「房间名称」，<code>time8</code> 选「订单结束时间」，<code>time9</code> 选「下一单预约开始时间」，<code>thing4</code> 选「门店名称」。</li>
+        <li>带「订阅提醒」入口的小程序版本发布后，选择「微信小程序订阅消息」并保存渠道。保洁员从任务大厅点击订阅并允许授权。</li>
+        <li>结束测试订单，核对保洁任务和微信服务通知均已出现。</li>
+      </ol>
+      <p>PC 配置入口此前已部署。保洁订阅提醒在小程序正式发布、门店启用渠道、保洁员授权后可做实收验收。</p>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- 第十一章：常见问题 FAQ -->
+    <!-- ================================================================ -->
+    <div class="chapter" id="ch11">
+      <div class="chapter-header">
+        <h2>第十一章：常见问题 FAQ</h2>
+        <div class="chapter-summary">
+          <strong>本章概要：</strong>汇总了日常运营中最常见的问题和解答，帮助您快速找到解决方案。
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">顾客付款或核销后如何入场？</div>
+        <div class="faq-a">在「订单详情」确认可入场时间，到时点击「通电开门」。门店有独立门禁时，可按需使用「门店大门」。</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Q: 顾客不会操作怎么办？</div>
+        <div class="faq-a">A: 管理员可通过小程序「个人中心」进入管理界面，使用「代客下单」功能帮顾客完成开房，也可远程开门、帮顾客续费等。建议店内张贴操作指引海报，方便顾客自助操作。</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Q: 房间到期了顾客还没走怎么办？</div>
+        <div class="faq-a">A: 系统会在到期前通过语音播报提醒顾客。到期后系统将自动断电。顾客可在小程序自助续费延长使用时间，管理员也可以帮顾客续费。如需立即清场，管理员可在管理界面提前结束订单。</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Q: 保洁任务没人接怎么办？</div>
+        <div class="faq-a">先确认订单已结束、空间未开启「跳过保洁」且保洁员已绑定门店。商户可在「保洁订单」查看任务记录。</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Q: 支付失败怎么办？</div>
+        <div class="faq-a">A: 订单状态会显示为"待支付"，顾客可重新支付。如持续失败，建议检查网络连接或更换支付方式。管理员也可使用「代客下单」功能帮顾客完成订单。</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Q: 如何退款？</div>
+        <div class="faq-a">在订单详情或 PC「预约订单」「支付与退款」查看当前订单可用操作，根据订单状态申请或处理。处理后核对原支付或团购平台的退款状态。</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Q: 团购券怎么使用？</div>
+        <div class="faq-a">在空间预约页进入「团购预约」，填写券码并点击「团购兑换」。建单后在订单详情按时入场。商户可从手机端「团购验券」协助操作。</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Q: 如何查看经营数据？</div>
+        <div class="faq-a">A: 管理员在小程序「个人中心」→「经营统计」中可查看营业额、订单数、房间使用率、消费人数、收入构成等经营数据，帮助您全面了解门店运营状况。</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Q: 门店地址找不到 / 定位不准？</div>
+        <div class="faq-a">A: 请确保在管理后台正确填写了门店地址（精确到门牌号）。顾客端可在首页手动切换门店，也可通过搜索门店名称定位。如仍有问题，建议检查门店经纬度坐标是否需要校准。</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Q: 设备离线怎么办？</div>
+        <div class="faq-a">A: 进入「设备管理」检查设备在线状态。可尝试远程控制测试是否响应。如设备持续离线，请检查设备电源和网络连接。如仍无法恢复，请联系硬件运维人员进行现场排查。</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Q: 顾客要求换房怎么处理？</div>
+        <div class="faq-a">A: 管理员在订单详情中使用「换房」功能，将顾客从当前房间转移到目标房间。系统会自动处理原房间断电和目标房间通电。</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Q: 押金什么时候退？</div>
+        <div class="faq-a">A: 订单正常结束后，押金会按照门店设置的规则自动退还到顾客的支付账户或余额中。如未自动退还，管理员可手动操作退押金。</div>
+      </div>
+
+      <div class="callout callout-important">
+        <div class="callout-title">📌 还有其他问题？</div>
+        如果您在使用过程中遇到本手册未涵盖的问题，请联系云掌柜共享空间技术支持团队获取帮助。
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align:center; padding: 30px 0; color:#999; font-size:13px; border-top:1px solid #eee; margin-top:20px;">
+      <p>云掌柜共享空间 · 业务操作手册</p>
+      <p>共享空间系统 · 2026 年 11 月更新</p>
+    </div>
+
+  </main>
+</div>
+
+<!-- Sidebar active highlight script -->
+<script>
+(function(){
+  var links = document.querySelectorAll('#sidebarNav a');
+  var targets = [];
+  for(var i=0;i<links.length;i++){
+    var id = links[i].getAttribute('href').replace('#','');
+    var el = document.getElementById(id);
+    if(el) targets.push({link:links[i], el:el});
+  }
+  function onScroll(){
+    var st = window.scrollY || document.documentElement.scrollTop;
+    var current = null;
+    for(var i=0;i<targets.length;i++){
+      if(targets[i].el.offsetTop - 80 <= st) current = targets[i];
+    }
+    for(var j=0;j<links.length;j++) links[j].classList.remove('active');
+    if(current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+})();
+</script>
+</body>
+</html>

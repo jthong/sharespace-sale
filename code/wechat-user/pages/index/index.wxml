@@ -1,0 +1,241 @@
+<wxs src="../../utils/magic.wxs" module="magic" />
+<!-- ==================== 共享空间 · 雀小仙风格单店首页 ==================== -->
+<view class="qxx-page">
+
+  <!-- 顶部品牌区 -->
+  <view class="qxx-header">
+    <view class="qxx-logo">云</view>
+    <view class="qxx-brand">
+      <view class="qxx-name">云掌柜共享空间</view>
+    </view>
+  </view>
+
+  <!-- 搜索栏 -->
+  <view class="qxx-search">
+    <view class="qxx-search-bar">
+      <image class="qxx-search-icon" src="https://oss.systemdiv.com/4167d518cd6a4514856249fe2be61fbde1628b5cb30bc2e03855466ad8417f07.png"></image>
+      <input class="qxx-search-input" type="text" placeholder="搜索房间" placeholder-class="qxx-search-ph"
+        value="{{searchVal}}" bindinput="onSearchInput" confirm-type="search" />
+      <view class="qxx-search-clear" wx:if="{{searchVal}}" bindtap="clearSearch">✕</view>
+    </view>
+  </view>
+
+  <!-- 开门 / 续单 主按钮 -->
+  <view class="qxx-actions">
+    <view class="qxx-action" bindtap="openDoor">
+      <image class="qxx-action-icon" src="https://oss.systemdiv.com/929bb91e5553ecaf66d3bdb8f4d1503b264e5bad106fc4a375d8a35a98dcb699.png"></image>
+      <text>开门</text>
+    </view>
+    <view class="qxx-action" bindtap="roomRenew">
+      <image class="qxx-action-icon" src="https://oss.systemdiv.com/7e89179674163b3a92fcd9d338cfa2c4139578a970c5e68921c12485c9ae55db.png"></image>
+      <text>续单</text>
+    </view>
+  </view>
+
+  <!-- 门店信息卡 -->
+  <view class="qxx-store">
+    <image wx:if="{{doorinfodata.headImg}}" class="qxx-store-img" src="{{doorinfodata.headImg}}" mode="aspectFill" lazy-load></image>
+    <view wx:else class="qxx-store-img qxx-store-placeholder">店</view>
+    <view class="qxx-store-info">
+      <view class="qxx-store-top">
+        <view class="qxx-store-name">{{doorinfodata.storeName || '当前门店'}}</view>
+        <view class="qxx-store-dist" wx:if="{{doorinfodata.distance}}">{{doorinfodata.distance}}km</view>
+      </view>
+      <view class="qxx-store-addr">{{doorinfodata.address || '门店地址待完善'}}</view>
+      <view class="qxx-store-btns">
+        <view class="qxx-sbtn" bindtap="onClickShow" data-index="1">
+          <image class="qxx-sbtn-icon" src="https://oss.systemdiv.com/11920b033c1caa098576eb941433624ad8cd0694b837f09af93731c3d5d12cbc.png"></image>
+          <text>电话</text>
+        </view>
+        <view class="qxx-sbtn" bindtap="goTencentMap">
+          <image class="qxx-sbtn-icon" src="https://oss.systemdiv.com/970a60b5350f87ea69eb70b0a1e531925387fdd1f674e0d90fff84abcc848fba.png"></image>
+          <text>导航</text>
+        </view>
+        <view class="qxx-sbtn qxx-sbtn-primary" bindtap="goYuyue">
+          <text>点我预约</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 功能宫格 -->
+  <view class="qxx-grid">
+    <view class="qxx-gitem" bindtap="goGuide">
+      <image class="qxx-gicon" src="https://oss.systemdiv.com/2a29d3ddd93f5e7c611e50bf4be5994ed0783a7d968acdf697076317ed6b55c6.png"></image>
+      <text>停车指南</text>
+    </view>
+    <view class="qxx-gitem" bindtap="goYuyue">
+      <image class="qxx-gicon" src="https://oss.systemdiv.com/6e27420eb12a37c97a0cb0940a4e86f246518a1be8cbcba0fa3a01c9d7c74bb6.png"></image>
+      <text>预约包间</text>
+    </view>
+    <view class="qxx-gitem" bindtap="showWifi">
+      <image class="qxx-gicon" src="https://oss.systemdiv.com/4ec616d6b5668e6a253ab6af2c3a9b417b58cb61fe530dabe51e1d53e9f031fe.png"></image>
+      <text>一键WiFi</text>
+    </view>
+    <view class="qxx-gitem" bindtap="gototuangou">
+      <image class="qxx-gicon" src="https://oss.systemdiv.com/284bdca63e5eb4ea969e9380856afe1096d4f85bc7b84e6aee10f442cdc93173.png"></image>
+      <text>团购验券</text>
+    </view>
+    <view class="qxx-gitem" bindtap="onClickShow" data-index="1">
+      <image class="qxx-gicon" src="https://oss.systemdiv.com/9311bf0b234a18874c899c46197be9ad3f75cdd22d180839b21bf051dfdb4d74.png"></image>
+      <text>联系客服</text>
+    </view>
+    <view class="qxx-gitem" bindtap="goRecharge">
+      <image class="qxx-gicon" src="https://oss.systemdiv.com/3086cca1595b3434e350c83005248a224910b751f6f983fe6342e708267ca38f.png"></image>
+      <text>余额充值</text>
+    </view>
+    <view class="qxx-gitem" bindtap="openDoor">
+      <image class="qxx-gicon" src="https://oss.systemdiv.com/929bb91e5553ecaf66d3bdb8f4d1503b264e5bad106fc4a375d8a35a98dcb699.png"></image>
+      <text>一键开门</text>
+    </view>
+    <view class="qxx-gitem" bindtap="roomRenew">
+      <image class="qxx-gicon" src="https://oss.systemdiv.com/7e89179674163b3a92fcd9d338cfa2c4139578a970c5e68921c12485c9ae55db.png"></image>
+      <text>订单续费</text>
+    </view>
+  </view>
+
+  <!-- 房间状态图例 -->
+  <view class="qxx-legend">
+    <view class="qxx-li"><view class="qxx-dot qxx-dot-red"></view>使用中，不可选</view>
+    <view class="qxx-li"><view class="qxx-dot qxx-dot-green"></view>空闲中，可预约</view>
+  </view>
+
+  <!-- 房间列表 -->
+  <view class="qxx-rooms" wx:if="{{filteredRooms.length>0}}">
+    <view class="qxx-room" wx:for="{{filteredRooms}}" wx:key="roomId">
+      <view class="qxx-room-head">
+        <view class="qxx-room-title">
+          <text>{{item.roomName}}</text>
+          <text class="qxx-room-type" wx:if="{{magic.typeText(item.type)}}">【{{magic.typeText(item.type)}}】</text>
+        </view>
+        <view class="qxx-room-status {{magic.statusClass(item.status)}}">
+          {{magic.statusText(item.status)}}
+          <text class="qxx-room-end" wx:if="{{item.status==3 && item.timeText}}">{{item.timeText}} 结束</text>
+        </view>
+      </view>
+      <view class="qxx-room-tags">
+        <view class="qxx-tag" wx:for="{{magic.split(item.label)}}" wx:for-item="lab" wx:key="lab">{{lab}}</view>
+      </view>
+      <view class="qxx-room-mid">
+        <view class="qxx-room-price">¥{{item.price}}<text class="qxx-price-unit">/1小时</text></view>
+        <view class="qxx-room-sub" wx:if="{{item.vipPriceList && item.vipPriceList.length}}">会员 ¥{{item.vipPriceList[item.vipPriceList.length-1].price}}/时起</view>
+      </view>
+      <view class="qxx-room-foot">
+        <view class="qxx-times">
+          <view class="qxx-time {{hour.disable?'off':''}}" wx:for="{{item._timeSlots}}" wx:for-item="hour" wx:key="index">{{hour.hour}}</view>
+        </view>
+        <view class="qxx-book {{item.status==0?'qxx-book-dis':''}}" bindtap="goOrder" data-status="{{item.status}}" data-info="{{item.roomId}}">预约</view>
+      </view>
+    </view>
+  </view>
+  <view class="qxx-empty" wx:if="{{filteredRooms.length==0 && searchVal}}">
+    没有找到「{{searchVal}}」相关房间
+  </view>
+
+  <!-- 门店介绍 -->
+  <view class="qxx-env">
+    <view class="qxx-env-title">门店介绍</view>
+    <view class="qxx-env-sub">包间布局示意 · 共 6 间（包1-包6）</view>
+    <image class="qxx-env-img" src="https://oss.systemdiv.com/75f3a2f3325bebf630fab22ba42b964d14b7d2e82ab1f9e62e9c5799db40bc40.png" mode="widthFix" lazy-load></image>
+    <view class="qxx-env-imgs" wx:if="{{storeEnvImg.length>0}}">
+      <image class="qxx-env-img" wx:for="{{storeEnvImg}}" wx:key="storeEnvImg" src="{{item}}" mode="widthFix" lazy-load></image>
+    </view>
+  </view>
+
+  <view class="qxx-footer">— 仅供娱乐 · 严禁赌博 —</view>
+</view>
+
+
+<!-- 导航提示框 -->
+<van-popup round show="{{ show }}" bind:tap="onClickHide">
+  <view class="popup navigation" wx:if="{{popupIndex === 0}}">
+    <view class="title">导航到店</view>
+    <view class="sub-title">可选择您所需要的服务</view>
+    <view class="btn" bind:tap="goTencentMap">
+      <image lazy-load src="https://oss.systemdiv.com/e52f9327c9dd5b18d9462ee1b1fea90dd740d1bd1d97e03b15a665fc6882f3c0.png" />
+      地图导航
+    </view>
+    <view class="btn" bind:tap="goGuide">
+      <image lazy-load src="https://oss.systemdiv.com/2a29d3ddd93f5e7c611e50bf4be5994ed0783a7d968acdf697076317ed6b55c6.png" />
+      位置指引
+    </view>
+  </view>
+  <view class="popup service" wx:if="{{popupIndex === 1}}">
+    <view class="title">联系客服</view>
+    <view class="sub-title">可选择您所需要的服务</view>
+    <view class="btn" bind:tap="call">
+      <image lazy-load src="https://oss.systemdiv.com/1c5cd06bd1c6273fbc83968d20e28119acdfb881d627f17af8c61cb71f44cbc6.png" />
+      {{ doorinfodata.kefuPhone || '客服电话待完善' }}
+    </view>
+    <view class="btn" bind:tap="copy" wx:if="{{doorinfodata.kefuWx}}">
+      <image lazy-load src="https://oss.systemdiv.com/248d467e9ddf0f4cfdad7be0ada30a8a9397378d49ad9666a978ba4472cb0075.png" />
+      {{doorinfodata.kefuWx}}
+    </view>
+  </view>
+</van-popup>
+
+<!-- 房间预定时间列表 -->
+<van-popup round show="{{ showReserve }}" bind:tap="onHideReserve">
+  <view class="reserve-box">
+    <view class="title">预定时间</view>
+    <view class="time-line" wx:for="{{orderTimeList}}" wx:key="*this">
+      <view class="dot"></view>
+      <view class="time-tag"><text>{{item}} </text><text>已预订</text></view>
+    </view>
+    <button>知道了</button>
+  </view>
+</van-popup>
+
+<!-- 是否展示团购券信息 -->
+<van-popup round show="{{ showGroupsPay }}" close-on-click-overlay="{{ true }}">
+  <scroll-view scroll-y class="groupInfo">
+    <view class="group-top">查询到您有{{groupPays.length}}张团购券待使用~</view>
+    <view class="group-item" wx:for="{{groupPays}}" data-index="{{index}}" wx:key="index">
+      <view class="itemInfo">
+        <view class="item-name">{{item.ticketName}}</view>
+        <view class="item-code">
+          <view>券码：{{item.ticketNo}}</view>
+          <button bind:tap="gotoUse" class="gotoUse" data-item="{{item}}">使用</button>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+  <view style="display: flex;">
+    <button bind:tap="cancelUser" class="cancelUser">关闭</button>
+  </view>
+</van-popup>
+
+<!-- 弹出层提示 -->
+<van-popup round show="{{ popshow }}">
+  <view class="pop">
+    <view class="head bg-primary">门店公告</view>
+    <scroll-view scroll-y class="content">
+      <rich-text nodes="{{doorinfodata.notice}}"></rich-text>
+    </scroll-view>
+    <view class="foot border-primary" bind:tap="popClose">我已仔细阅读</view>
+  </view>
+</van-popup>
+
+<van-dialog use-slot title="WiFi信息" class="wifiDialog" show="{{ wifiShow }}">
+  <view class="dialog">
+    <view class="item">
+      <label>WiFi名称: </label>
+      <text>{{doorinfodata.wifiInfo}}</text>
+    </view>
+    <view class="item">
+      <label>Wifi密码: </label>
+      <text>{{doorinfodata.wifiPwd}}</text>
+    </view>
+    <view class="btn">
+      <button class="copy" bind:tap="copyWifi" data-ssid="{{doorinfodata.wifiInfo}}" data-pwd="{{doorinfodata.wifiPwd}}">
+        复制密码
+      </button>
+      <button class="connect" bind:tap="connectWifi" data-ssid="{{doorinfodata.wifiInfo}}" data-pwd="{{doorinfodata.wifiPwd}}">
+        一键连接
+      </button>
+    </view>
+    <view class="info">
+      部分机型不支持一键连接,请复制密码自行连接
+    </view>
+  </view>
+</van-dialog>

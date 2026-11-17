@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>云掌柜共享空间管理后台 - 三个设计方向</title>
+<style>
+/* ===== Reset & Base ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #1a1a1a; line-height: 1.5; }
+
+/* ===== Page Layout ===== */
+.direction-section { margin: 40px auto; max-width: 1400px; }
+.direction-header { padding: 24px 0 16px; border-bottom: 1px solid #e0e0e0; margin-bottom: 24px; }
+.direction-header h2 { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+.direction-header .tag { display: inline-block; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; margin-right: 8px; }
+.direction-header p { color: #666; font-size: 14px; margin-top: 8px; line-height: 1.7; }
+
+.mockup-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.mockup-frame { border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); border: 1px solid #e0e0e0; }
+.mockup-label { padding: 12px 16px; background: #fafafa; border-bottom: 1px solid #e8e8e8; font-size: 13px; font-weight: 500; color: #666; }
+
+/* ===== Shared Mockup Styles ===== */
+.admin-shell { display: flex; height: 520px; overflow: hidden; }
+.sidebar { width: 200px; flex-shrink: 0; display: flex; flex-direction: column; }
+.sidebar-logo { height: 50px; display: flex; align-items: center; padding: 0 16px; font-size: 15px; font-weight: 600; gap: 10px; }
+.sidebar-logo .logo-dot { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; font-weight: 700; }
+.sidebar-menu { flex: 1; padding: 8px 0; overflow: hidden; }
+.menu-item { height: 40px; display: flex; align-items: center; padding: 0 16px; font-size: 13px; cursor: default; gap: 10px; transition: all 0.15s; }
+.menu-item .icon { width: 16px; height: 16px; border-radius: 3px; opacity: 0.6; }
+.menu-item.active { font-weight: 500; }
+.menu-group-title { height: 36px; display: flex; align-items: center; padding: 0 16px; font-size: 12px; opacity: 0.45; text-transform: uppercase; letter-spacing: 0.5px; }
+.sub-menu-item { height: 36px; display: flex; align-items: center; padding: 0 16px 0 42px; font-size: 13px; cursor: default; }
+
+.main-area { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.navbar { height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; flex-shrink: 0; }
+.navbar-left { display: flex; align-items: center; gap: 12px; }
+.navbar-right { display: flex; align-items: center; gap: 16px; }
+.hamburger { width: 20px; height: 14px; display: flex; flex-direction: column; justify-content: space-between; cursor: default; }
+.hamburger span { height: 2px; border-radius: 1px; }
+.breadcrumb { font-size: 13px; }
+.breadcrumb span { opacity: 0.45; }
+.avatar { width: 28px; height: 28px; border-radius: 50%; }
+
+.tags-bar { height: 36px; display: flex; align-items: center; padding: 0 20px; gap: 6px; flex-shrink: 0; }
+.tag-item { padding: 3px 10px; border-radius: 4px; font-size: 12px; cursor: default; display: flex; align-items: center; gap: 4px; }
+.tag-item .close { font-size: 10px; opacity: 0.4; }
+
+.content-area { flex: 1; padding: 20px; overflow: auto; }
+
+/* Search bar */
+.search-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.search-input { height: 32px; border-radius: 6px; padding: 0 10px; font-size: 12px; width: 150px; }
+.search-select { height: 32px; border-radius: 6px; padding: 0 8px; font-size: 12px; width: 120px; appearance: none; }
+.search-btn { height: 32px; padding: 0 14px; border-radius: 6px; font-size: 12px; border: none; cursor: default; font-weight: 500; }
+.search-btn.primary { color: #fff; }
+
+/* Toolbar */
+.toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.toolbar-left { display: flex; gap: 8px; }
+.toolbar-btn { height: 30px; padding: 0 12px; border-radius: 6px; font-size: 12px; border: none; cursor: default; display: flex; align-items: center; gap: 4px; }
+
+/* Table */
+.data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.data-table th { height: 38px; text-align: left; padding: 0 12px; font-weight: 500; font-size: 12px; }
+.data-table td { height: 42px; padding: 0 12px; }
+.data-table .actions { display: flex; gap: 8px; }
+.data-table .action-link { font-size: 12px; cursor: default; }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+
+/* Pagination */
+.pagination { display: flex; justify-content: flex-end; align-items: center; gap: 6px; margin-top: 12px; font-size: 12px; }
+.page-btn { width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: default; }
+
+/* ===== Direction A: 极简白 ===== */
+.dir-a .sidebar { background: #ffffff; border-right: 1px solid #e8e8e8; }
+.dir-a .sidebar-logo { color: #1a1a1a; border-bottom: 1px solid #f0f0f0; }
+.dir-a .sidebar-logo .logo-dot { background: #FF6B35; }
+.dir-a .menu-item { color: #595959; }
+.dir-a .menu-item.active { background: #FFF7F3; color: #FF6B35; font-weight: 500; }
+.dir-a .menu-item .icon { background: #8c8c8c; }
+.dir-a .menu-item.active .icon { background: #FF6B35; }
+.dir-a .sub-menu-item { color: #8c8c8c; }
+
+.dir-a .navbar { background: #fff; border-bottom: 1px solid #f0f0f0; }
+.dir-a .navbar .hamburger span { background: #595959; }
+.dir-a .navbar .breadcrumb { color: #595959; }
+.dir-a .navbar .avatar { background: #FF6B35; }
+
+.dir-a .tags-bar { background: #fafafa; border-bottom: 1px solid #f0f0f0; }
+.dir-a .tag-item { background: #fff; color: #8c8c8c; border: 1px solid #e8e8e8; }
+.dir-a .tag-item.active { background: #FF6B35; color: #fff; border-color: #FF6B35; }
+
+.dir-a .content-area { background: #f7f8fa; }
+.dir-a .search-input, .dir-a .search-select { background: #fff; border: 1px solid #e0e0e0; color: #1a1a1a; }
+.dir-a .search-btn.primary { background: #FF6B35; }
+.dir-a .toolbar-btn { background: #fff; border: 1px solid #e0e0e0; color: #595959; }
+.dir-a .toolbar-btn.accent { background: #FF6B35; color: #fff; border: none; }
+
+.dir-a .data-table th { background: #fafafa; color: #8c8c8c; border-bottom: 1px solid #e8e8e8; }
+.dir-a .data-table td { border-bottom: 1px solid #f0f0f0; color: #1a1a1a; }
+.dir-a .data-table .action-link { color: #FF6B35; }
+.dir-a .data-table .action-link.danger { color: #ff4d4f; }
+
+.dir-a .pagination { color: #8c8c8c; }
+.dir-a .page-btn { background: #fff; border: 1px solid #e0e0e0; color: #595959; }
+.dir-a .page-btn.active { background: #FF6B35; color: #fff; border-color: #FF6B35; }
+
+/* ===== Direction B: 深邃专业 ===== */
+.dir-b .sidebar { background: #0f1117; }
+.dir-b .sidebar-logo { color: #e0e0e0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.dir-b .sidebar-logo .logo-dot { background: linear-gradient(135deg, #FF6B35, #ff8c5a); }
+.dir-b .menu-item { color: rgba(255,255,255,0.55); }
+.dir-b .menu-item.active { background: rgba(255,107,53,0.1); color: #FF6B35; }
+.dir-b .menu-item .icon { background: rgba(255,255,255,0.25); }
+.dir-b .menu-item.active .icon { background: #FF6B35; }
+.dir-b .menu-group-title { color: rgba(255,255,255,0.25); }
+.dir-b .sub-menu-item { color: rgba(255,255,255,0.35); }
+
+.dir-b .navbar { background: #fff; border-bottom: 1px solid #eaecef; }
+.dir-b .navbar .hamburger span { background: #1a1a1a; }
+.dir-b .navbar .breadcrumb { color: #1a1a1a; }
+.dir-b .navbar .avatar { background: #0f1117; }
+
+.dir-b .tags-bar { background: #fafbfc; border-bottom: 1px solid #eaecef; }
+.dir-b .tag-item { background: #fff; color: #8c8c8c; border: 1px solid #e0e0e0; }
+.dir-b .tag-item.active { background: #0f1117; color: #fff; border-color: #0f1117; }
+
+.dir-b .content-area { background: #f4f5f7; }
+.dir-b .search-input, .dir-b .search-select { background: #fff; border: 1px solid #d9dbe0; color: #1a1a1a; }
+.dir-b .search-btn.primary { background: #0f1117; }
+.dir-b .toolbar-btn { background: #fff; border: 1px solid #d9dbe0; color: #595959; }
+.dir-b .toolbar-btn.accent { background: #FF6B35; color: #fff; border: none; }
+
+.dir-b .data-table th { background: #f4f5f7; color: #8c8c8c; border-bottom: 1px solid #e0e0e0; }
+.dir-b .data-table td { border-bottom: 1px solid #eaecef; color: #1a1a1a; background: #fff; }
+.dir-b .data-table .action-link { color: #0f1117; font-weight: 500; }
+.dir-b .data-table .action-link.danger { color: #ff4d4f; }
+
+.dir-b .pagination { color: #8c8c8c; }
+.dir-b .page-btn { background: #fff; border: 1px solid #d9dbe0; color: #595959; }
+.dir-b .page-btn.active { background: #0f1117; color: #fff; border-color: #0f1117; }
+
+/* ===== Direction C: 柔和精致 ===== */
+.dir-c .sidebar { background: #faf9f7; border-right: 1px solid #eae6e1; }
+.dir-c .sidebar-logo { color: #2d2a26; border-bottom: 1px solid #eae6e1; }
+.dir-c .sidebar-logo .logo-dot { background: #c45d2c; }
+.dir-c .menu-item { color: #6b6560; border-radius: 8px; margin: 2px 8px; padding: 0 12px; }
+.dir-c .menu-item.active { background: #fff; color: #c45d2c; font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.dir-c .menu-item .icon { background: #a09a94; border-radius: 4px; }
+.dir-c .menu-item.active .icon { background: #c45d2c; }
+.dir-c .menu-group-title { color: #b5afa8; padding: 0 20px; }
+.dir-c .sub-menu-item { color: #a09a94; }
+
+.dir-c .navbar { background: #fff; border-bottom: 1px solid #eae6e1; }
+.dir-c .navbar .hamburger span { background: #6b6560; border-radius: 2px; }
+.dir-c .navbar .breadcrumb { color: #6b6560; }
+.dir-c .navbar .avatar { background: #c45d2c; }
+
+.dir-c .tags-bar { background: #faf9f7; border-bottom: 1px solid #eae6e1; }
+.dir-c .tag-item { background: #fff; color: #8c8c8c; border: 1px solid #eae6e1; border-radius: 6px; }
+.dir-c .tag-item.active { background: #c45d2c; color: #fff; border-color: #c45d2c; }
+
+.dir-c .content-area { background: #f5f3f0; }
+.dir-c .search-input, .dir-c .search-select { background: #fff; border: 1px solid #e0dcd7; color: #2d2a26; border-radius: 8px; }
+.dir-c .search-btn.primary { background: #c45d2c; border-radius: 8px; }
+.dir-c .toolbar-btn { background: #fff; border: 1px solid #e0dcd7; color: #6b6560; border-radius: 8px; }
+.dir-c .toolbar-btn.accent { background: #c45d2c; color: #fff; border: none; border-radius: 8px; }
+
+.dir-c .data-table { border-radius: 10px; overflow: hidden; }
+.dir-c .data-table th { background: #faf9f7; color: #a09a94; border-bottom: 1px solid #eae6e1; }
+.dir-c .data-table td { border-bottom: 1px solid #f0ece7; color: #2d2a26; }
+.dir-c .data-table .action-link { color: #c45d2c; }
+.dir-c .data-table .action-link.danger { color: #d94f4f; }
+
+.dir-c .pagination { color: #a09a94; }
+.dir-c .page-btn { background: #fff; border: 1px solid #e0dcd7; color: #6b6560; border-radius: 6px; }
+.dir-c .page-btn.active { background: #c45d2c; color: #fff; border-color: #c45d2c; }
+
+/* ===== Spec Table ===== */
+.spec-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+.spec-table th { text-align: left; padding: 10px 12px; background: #fafafa; border: 1px solid #e8e8e8; font-weight: 500; color: #595959; }
+.spec-table td { padding: 10px 12px; border: 1px solid #e8e8e8; color: #1a1a1a; }
+.color-swatch { width: 16px; height: 16px; border-radius: 4px; display: inline-block; vertical-align: middle; margin-right: 6px; border: 1px solid rgba(0,0,0,0.08); }
+
+/* ===== Divider ===== */
+.section-divider { border: none; border-top: 2px solid #e8e8e8; margin: 60px auto; max-width: 1400px; }
+
+/* ===== Responsive note ===== */
+.note-box { background: #fffbe6; border: 1px solid #ffe58f; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #614700; margin-top: 16px; line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<div style="max-width:1400px; margin: 40px auto; padding: 0 20px;">
+  <h1 style="font-size: 28px; font-weight: 700; margin-bottom: 8px;">云掌柜共享空间管理后台 UI 改版方案</h1>
+  <p style="color: #666; font-size: 14px;">基于 Vue 2 + Element UI 2.15 现有架构，三个差异化设计方向</p>
+</div>
+
+<hr class="section-divider">
+
+<!-- ==================== Direction A ==================== -->
+<div class="direction-section">
+  <div class="direction-header">
+    <span class="tag" style="background:#FFF7F3; color:#FF6B35;">方案 A</span>
+    <h2>极简白 — 干净、克制、品牌一致</h2>
+    <p>
+      白色侧边栏 + 浅灰内容区 + 品牌橙点缀。灵感来源：Linear、Vercel、Notion。<br>
+      <strong>核心理念</strong>：用留白和排版建立层级，橙色只出现在「需要用户注意的触点」——激活菜单、主按钮、操作链接。<br>
+      <strong>适用场景</strong>：日常高频操作的管理后台，长时间使用不疲劳。
+    </p>
+  </div>
+
+  <div class="mockup-container">
+    <!-- Full view -->
+    <div class="mockup-frame dir-a">
+      <div class="mockup-label">整体布局 — 设备管理页</div>
+      <div class="admin-shell">
+        <div class="sidebar">
+          <div class="sidebar-logo">
+            <div class="logo-dot">Y</div>
+            云掌柜共享空间
+          </div>
+          <div class="sidebar-menu">
+            <div class="menu-group-title">业务管理</div>
+            <div class="menu-item"><div class="icon"></div>门店管理</div>
+            <div class="menu-item"><div class="icon"></div>房间管理</div>
+            <div class="menu-item active"><div class="icon"></div>设备管理</div>
+            <div class="menu-item"><div class="icon"></div>订单管理</div>
+            <div class="menu-item"><div class="icon"></div>用户管理</div>
+            <div class="menu-group-title">系统</div>
+            <div class="menu-item"><div class="icon"></div>平台配置</div>
+            <div class="menu-item"><div class="icon"></div>系统日志</div>
+          </div>
+        </div>
+        <div class="main-area">
+          <div class="navbar">
+            <div class="navbar-left">
+              <div class="hamburger"><span style="background:#595959"></span><span style="background:#595959"></span><span style="background:#595959"></span></div>
+              <div class="breadcrumb">设备管理 <span>/ </span></div>
+            </div>
+            <div class="navbar-right">
+              <div class="avatar" style="background:#FF6B35;"></div>
+            </div>
+          </div>
+          <div class="tags-bar">
+            <div class="tag-item">首页</div>
+            <div class="tag-item active">设备管理 <span class="close">×</span></div>
+            <div class="tag-item">订单管理</div>
+          </div>
+          <div class="content-area">
+            <div class="search-bar">
+              <input class="search-input" placeholder="设备SN" />
+              <select class="search-select"><option>设备类型</option></select>
+              <select class="search-select"><option>门店</option></select>
+              <button class="search-btn primary">搜索</button>
+              <button class="search-btn" style="background:#fff;border:1px solid #e0e0e0;color:#595959;">重置</button>
+            </div>
+            <div class="toolbar">
+              <div class="toolbar-left">
+                <button class="toolbar-btn accent">+ 新增</button>
+                <button class="toolbar-btn">导出</button>
+              </div>
+            </div>
+            <table class="data-table">
+              <thead><tr><th>设备SN</th><th>类型</th><th>门店</th><th>状态</th><th>操作</th></tr></thead>
+              <tbody>
+                <tr><td>GW-20260001</td><td>物联网网关</td><td>旗舰店A</td><td><span class="status-dot" style="background:#52c41a;"></span>在线</td><td class="actions"><span class="action-link">配网</span><span class="action-link">绑定</span><span class="action-link danger">删除</span></td></tr>
+                <tr><td>DK-20260012</td><td>门禁</td><td>旗舰店A</td><td><span class="status-dot" style="background:#52c41a;"></span>在线</td><td class="actions"><span class="action-link">打开</span><span class="action-link">绑定</span><span class="action-link danger">删除</span></td></tr>
+                <tr><td>SP-20260034</td><td>云喇叭</td><td>旗舰店B</td><td><span class="status-dot" style="background:#d9d9d9;"></span>离线</td><td class="actions"><span class="action-link">打开</span><span class="action-link">绑定</span><span class="action-link danger">删除</span></td></tr>
+                <tr><td>LK-20260056</td><td>密码锁</td><td>旗舰店A</td><td><span class="status-dot" style="background:#52c41a;"></span>在线</td><td class="actions"><span class="action-link">打开</span><span class="action-link">绑定</span><span class="action-link danger">删除</span></td></tr>
+              </tbody>
+            </table>
+            <div class="pagination">
+              <span>共 48 条</span>
+              <div class="page-btn">&lt;</div>
+              <div class="page-btn active">1</div>
+              <div class="page-btn">2</div>
+              <div class="page-btn">3</div>
+              <div class="page-btn">&gt;</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar detail -->
+    <div class="mockup-frame dir-a">
+      <div class="mockup-label">侧边栏细节 — 菜单层级与状态</div>
+      <div style="background:#fff; padding: 20px;">
+        <div style="display:flex; align-items:center; gap:10px; padding-bottom:16px; border-bottom:1px solid #f0f0f0; margin-bottom:12px;">
+          <div style="width:32px;height:32px;border-radius:8px;background:#FF6B35;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">Y</div>
+          <span style="font-size:16px;font-weight:600;color:#1a1a1a;">云掌柜共享空间</span>
+        </div>
+        <div style="font-size:11px;color:#bfbfbf;padding:8px 12px;text-transform:uppercase;letter-spacing:0.5px;">业务管理</div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;color:#595959;font-size:13px;border-radius:8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:#d9d9d9;"></div>门店管理
+        </div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;color:#595959;font-size:13px;border-radius:8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:#d9d9d9;"></div>房间管理
+        </div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;background:#FFF7F3;color:#FF6B35;font-size:13px;font-weight:500;border-radius:8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:#FF6B35;"></div>设备管理
+          <span style="margin-left:auto;font-size:11px;background:#FF6B35;color:#fff;padding:1px 6px;border-radius:10px;">12</span>
+        </div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;color:#595959;font-size:13px;border-radius:8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:#d9d9d9;"></div>订单管理
+        </div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;color:#595959;font-size:13px;border-radius:8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:#d9d9d9;"></div>团购管理
+        </div>
+        <div style="font-size:11px;color:#bfbfbf;padding:8px 12px;text-transform:uppercase;letter-spacing:0.5px;margin-top:8px;">系统设置</div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;color:#595959;font-size:13px;border-radius:8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:#d9d9d9;"></div>平台配置
+        </div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;color:#595959;font-size:13px;border-radius:8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:#d9d9d9;"></div>用户管理
+        </div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;color:#595959;font-size:13px;border-radius:8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:#d9d9d9;"></div>角色管理
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <table class="spec-table">
+    <tr><th style="width:120px;">属性</th><th>值</th></tr>
+    <tr><td>侧边栏</td><td>白色背景 <span class="color-swatch" style="background:#ffffff;"></span>#FFFFFF，激活项浅橙底 <span class="color-swatch" style="background:#FFF7F3;"></span>#FFF7F3 + 橙色文字 <span class="color-swatch" style="background:#FF6B35;"></span>#FF6B35</td></tr>
+    <tr><td>内容区背景</td><td><span class="color-swatch" style="background:#f7f8fa;"></span>#F7F8FA — 与白色卡片形成微妙层次</td></tr>
+    <tr><td>主色</td><td><span class="color-swatch" style="background:#FF6B35;"></span>#FF6B35 品牌橙 — 仅用于激活态、主按钮、操作链接</td></tr>
+    <tr><td>表格</td><td>白色行背景，表头 #FAFAFA，极细分割线 #F0F0F0</td></tr>
+    <tr><td>圆角</td><td>按钮/输入框 6px，卡片 8px，标签 4px</td></tr>
+  </table>
+</div>
+
+<hr class="section-divider">
+
+<!-- ==================== Direction B ==================== -->
+<div class="direction-section">
+  <div class="direction-header">
+    <span class="tag" style="background:#0f1117; color:#fff;">方案 B</span>
+    <h2>深邃专业 — 深色侧栏 + 白内容区 + 高对比</h2>
+    <p>
+      接近黑色的深色侧边栏 + 纯白内容区 + 橙色作为唯一暖色。灵感来源：GitHub、GitLab、Linear Dark Sidebar。<br>
+      <strong>核心理念</strong>：深色侧栏与白色内容区形成强对比，视觉焦点自然落在内容区。橙色在深色背景上极其醒目。<br>
+      <strong>适用场景</strong>：专业工具型后台，强调「操控感」和「数据密度」。
+    </p>
+  </div>
+
+  <div class="mockup-container">
+    <div class="mockup-frame dir-b">
+      <div class="mockup-label">整体布局 — 设备管理页</div>
+      <div class="admin-shell">
+        <div class="sidebar">
+          <div class="sidebar-logo">
+            <div class="logo-dot">Y</div>
+            云掌柜共享空间
+          </div>
+          <div class="sidebar-menu">
+            <div class="menu-group-title">业务管理</div>
+            <div class="menu-item"><div class="icon"></div>门店管理</div>
+            <div class="menu-item"><div class="icon"></div>房间管理</div>
+            <div class="menu-item active"><div class="icon"></div>设备管理</div>
+            <div class="menu-item"><div class="icon"></div>订单管理</div>
+            <div class="menu-item"><div class="icon"></div>用户管理</div>
+            <div class="menu-group-title">系统</div>
+            <div class="menu-item"><div class="icon"></div>平台配置</div>
+            <div class="menu-item"><div class="icon"></div>系统日志</div>
+          </div>
+        </div>
+        <div class="main-area">
+          <div class="navbar">
+            <div class="navbar-left">
+              <div class="hamburger"><span style="background:#1a1a1a"></span><span style="background:#1a1a1a"></span><span style="background:#1a1a1a"></span></div>
+              <div class="breadcrumb">设备管理 <span>/ </span></div>
+            </div>
+            <div class="navbar-right">
+              <div class="avatar" style="background:#0f1117;"></div>
+            </div>
+          </div>
+          <div class="tags-bar">
+            <div class="tag-item">首页</div>
+            <div class="tag-item active">设备管理 <span class="close">×</span></div>
+            <div class="tag-item">订单管理</div>
+          </div>
+          <div class="content-area">
+            <div class="search-bar">
+              <input class="search-input" placeholder="设备SN" />
+              <select class="search-select"><option>设备类型</option></select>
+              <select class="search-select"><option>门店</option></select>
+              <button class="search-btn primary">搜索</button>
+              <button class="search-btn" style="background:#fff;border:1px solid #d9dbe0;color:#595959;">重置</button>
+            </div>
+            <div class="toolbar">
+              <div class="toolbar-left">
+                <button class="toolbar-btn accent">+ 新增</button>
+                <button class="toolbar-btn">导出</button>
+              </div>
+            </div>
+            <table class="data-table">
+              <thead><tr><th>设备SN</th><th>类型</th><th>门店</th><th>状态</th><th>操作</th></tr></thead>
+              <tbody>
+                <tr><td>GW-20260001</td><td>物联网网关</td><td>旗舰店A</td><td><span class="status-dot" style="background:#52c41a;"></span>在线</td><td class="actions"><span class="action-link">配网</span><span class="action-link">绑定</span><span class="action-link danger">删除</span></td></tr>
+                <tr><td>DK-20260012</td><td>门禁</td><td>旗舰店A</td><td><span class="status-dot" style="background:#52c41a;"></span>在线</td><td class="actions"><span class="action-link">打开</span><span class="action-link">绑定</span><span class="action-link danger">删除</span></td></tr>
+                <tr><td>SP-20260034</td><td>云喇叭</td><td>旗舰店B</td><td><span class="status-dot" style="background:#d9d9d9;"></span>离线</td><td class="actions"><span class="action-link">打开</span><span class="action-link">绑定</span><span class="action-link danger">删除</span></td></tr>
+                <tr><td>LK-20260056</td><td>密码锁</td><td>旗舰店A</td><td><span class="status-dot" style="background:#52c41a;"></span>在线</td><td class="actions"><span class="action-link">打开</span><span class="action-link">绑定</span><span class="action-link danger">删除</span></td></tr>
+              </tbody>
+            </table>
+            <div class="pagination">
+              <span>共 48 条</span>
+              <div class="page-btn">&lt;</div>
+              <div class="page-btn active">1</div>
+              <div class="page-btn">2</div>
+              <div class="page-btn">3</div>
+              <div class="page-btn">&gt;</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mockup-frame dir-b">
+      <div class="mockup-label">侧边栏细节 — 深色层级</div>
+      <div style="background:#0f1117; padding: 20px;">
+        <div style="display:flex; align-items:center; gap:10px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.06); margin-bottom:12px;">
+          <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#FF6B35,#ff8c5a);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">Y</div>
+          <span style="font-size:16px;font-weight:600;color:#e0e0e0;">云掌柜共享空间</span>
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.25);padding:8px 12px;text-transform:uppercase;letter-spacing:0.5px;">业务管理</div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;color:rgba(255,255,255,0.55);font-size:13px;border-radius:8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:rgba(255,255,255,0.25);"></div>门店管理
+        </div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;color:rgba(255,255,255,0.55);font-size:13px;border-radius:8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:rgba(255,255,255,0.25);"></div>房间管理
+        </div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;background:rgba(255,107,53,0.1);color:#FF6B35;font-size:13px;font-weight:500;border-radius:8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:#FF6B35;"></div>设备管理
+          <span style="margin-left:auto;font-size:11px;background:rgba(255,107,53,0.15);color:#FF6B35;padding:1px 6px;border-radius:10px;">12</span>
+        </div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;color:rgba(255,255,255,0.55);font-size:13px;border-radius:8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:rgba(255,255,255,0.25);"></div>订单管理
+        </div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;color:rgba(255,255,255,0.55);font-size:13px;border-radius:8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:rgba(255,255,255,0.25);"></div>团购管理
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.25);padding:8px 12px;text-transform:uppercase;letter-spacing:0.5px;margin-top:8px;">系统设置</div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;color:rgba(255,255,255,0.55);font-size:13px;border-radius:8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:rgba(255,255,255,0.25);"></div>平台配置
+        </div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;color:rgba(255,255,255,0.55);font-size:13px;border-radius:8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:rgba(255,255,255,0.25);"></div>用户管理
+        </div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;color:rgba(255,255,255,0.55);font-size:13px;border-radius:8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:rgba(255,255,255,0.25);"></div>角色管理
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <table class="spec-table">
+    <tr><th style="width:120px;">属性</th><th>值</th></tr>
+    <tr><td>侧边栏</td><td>接近黑色 <span class="color-swatch" style="background:#0f1117;"></span>#0F1117，激活项橙色透明底 <span class="color-swatch" style="background:rgba(255,107,53,0.1);"></span>rgba(255,107,53,0.1)</td></tr>
+    <tr><td>内容区背景</td><td><span class="color-swatch" style="background:#f4f5f7;"></span>#F4F5F7 — 冷灰，表格行白色浮于其上</td></tr>
+    <tr><td>主色</td><td>侧栏橙色 <span class="color-swatch" style="background:#FF6B35;"></span>#FF6B35 + 内容区黑色 <span class="color-swatch" style="background:#0f1117;"></span>#0F1117 双主色</td></tr>
+    <tr><td>表格</td><td>白色行浮在冷灰底上，天然卡片感，无需额外 border-radius</td></tr>
+    <tr><td>TagsView</td><td>激活标签用深色 <span class="color-swatch" style="background:#0f1117;"></span>#0F1117，与侧栏呼应</td></tr>
+  </table>
+</div>
+
+<hr class="section-divider">
+
+<!-- ==================== Direction C ==================== -->
+<div class="direction-section">
+  <div class="direction-header">
+    <span class="tag" style="background:#f5f3f0; color:#c45d2c; border:1px solid #e0dcd7;">方案 C</span>
+    <h2>柔和精致 — 暖灰调 + 圆角 + 质感</h2>
+    <p>
+      暖灰侧边栏 + 奶油色内容区 + 陶土橙点缀。灵感来源：Figma、Craft、Bear App。<br>
+      <strong>核心理念</strong>：用暖色调营造「精致感」，大圆角和柔和阴影替代硬边框，菜单项用白卡片浮在暖灰底上。<br>
+      <strong>适用场景</strong>：强调品质感和品牌调性的产品，适合面向中高端客户的管理系统。
+    </p>
+  </div>
+
+  <div class="mockup-container">
+    <div class="mockup-frame dir-c">
+      <div class="mockup-label">整体布局 — 设备管理页</div>
+      <div class="admin-shell">
+        <div class="sidebar">
+          <div class="sidebar-logo">
+            <div class="logo-dot">Y</div>
+            云掌柜共享空间
+          </div>
+          <div class="sidebar-menu">
+            <div class="menu-group-title">业务管理</div>
+            <div class="menu-item"><div class="icon"></div>门店管理</div>
+            <div class="menu-item"><div class="icon"></div>房间管理</div>
+            <div class="menu-item active"><div class="icon"></div>设备管理</div>
+            <div class="menu-item"><div class="icon"></div>订单管理</div>
+            <div class="menu-item"><div class="icon"></div>用户管理</div>
+            <div class="menu-group-title">系统</div>
+            <div class="menu-item"><div class="icon"></div>平台配置</div>
+            <div class="menu-item"><div class="icon"></div>系统日志</div>
+          </div>
+        </div>
+        <div class="main-area">
+          <div class="navbar">
+            <div class="navbar-left">
+              <div class="hamburger"><span style="background:#6b6560"></span><span style="background:#6b6560"></span><span style="background:#6b6560"></span></div>
+              <div class="breadcrumb">设备管理 <span>/ </span></div>
+            </div>
+            <div class="navbar-right">
+              <div class="avatar" style="background:#c45d2c;"></div>
+            </div>
+          </div>
+          <div class="tags-bar">
+            <div class="tag-item">首页</div>
+            <div class="tag-item active">设备管理 <span class="close">×</span></div>
+            <div class="tag-item">订单管理</div>
+          </div>
+          <div class="content-area">
+            <div class="search-bar">
+              <input class="search-input" placeholder="设备SN" />
+              <select class="search-select"><option>设备类型</option></select>
+              <select class="search-select"><option>门店</option></select>
+              <button class="search-btn primary">搜索</button>
+              <button class="search-btn" style="background:#fff;border:1px solid #e0dcd7;color:#6b6560;">重置</button>
+            </div>
+            <div class="toolbar">
+              <div class="toolbar-left">
+                <button class="toolbar-btn accent">+ 新增</button>
+                <button class="toolbar-btn">导出</button>
+              </div>
+            </div>
+            <table class="data-table">
+              <thead><tr><th>设备SN</th><th>类型</th><th>门店</th><th>状态</th><th>操作</th></tr></thead>
+              <tbody>
+                <tr><td>GW-20260001</td><td>物联网网关</td><td>旗舰店A</td><td><span class="status-dot" style="background:#52c41a;"></span>在线</td><td class="actions"><span class="action-link">配网</span><span class="action-link">绑定</span><span class="action-link danger">删除</span></td></tr>
+                <tr><td>DK-20260012</td><td>门禁</td><td>旗舰店A</td><td><span class="status-dot" style="background:#52c41a;"></span>在线</td><td class="actions"><span class="action-link">打开</span><span class="action-link">绑定</span><span class="action-link danger">删除</span></td></tr>
+                <tr><td>SP-20260034</td><td>云喇叭</td><td>旗舰店B</td><td><span class="status-dot" style="background:#d9d9d9;"></span>离线</td><td class="actions"><span class="action-link">打开</span><span class="action-link">绑定</span><span class="action-link danger">删除</span></td></tr>
+                <tr><td>LK-20260056</td><td>密码锁</td><td>旗舰店A</td><td><span class="status-dot" style="background:#52c41a;"></span>在线</td><td class="actions"><span class="action-link">打开</span><span class="action-link">绑定</span><span class="action-link danger">删除</span></td></tr>
+              </tbody>
+            </table>
+            <div class="pagination">
+              <span>共 48 条</span>
+              <div class="page-btn">&lt;</div>
+              <div class="page-btn active">1</div>
+              <div class="page-btn">2</div>
+              <div class="page-btn">3</div>
+              <div class="page-btn">&gt;</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mockup-frame dir-c">
+      <div class="mockup-label">侧边栏细节 — 暖色卡片式菜单</div>
+      <div style="background:#faf9f7; padding: 20px;">
+        <div style="display:flex; align-items:center; gap:10px; padding-bottom:16px; border-bottom:1px solid #eae6e1; margin-bottom:12px;">
+          <div style="width:32px;height:32px;border-radius:8px;background:#c45d2c;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">Y</div>
+          <span style="font-size:16px;font-weight:600;color:#2d2a26;">云掌柜共享空间</span>
+        </div>
+        <div style="font-size:11px;color:#b5afa8;padding:8px 12px;text-transform:uppercase;letter-spacing:0.5px;">业务管理</div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;color:#6b6560;font-size:13px;border-radius:8px;margin:2px 8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:#a09a94;"></div>门店管理
+        </div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;color:#6b6560;font-size:13px;border-radius:8px;margin:2px 8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:#a09a94;"></div>房间管理
+        </div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;background:#fff;color:#c45d2c;font-size:13px;font-weight:500;border-radius:8px;margin:2px 8px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+          <div style="width:16px;height:16px;border-radius:4px;background:#c45d2c;"></div>设备管理
+          <span style="margin-left:auto;font-size:11px;background:#fdf0ea;color:#c45d2c;padding:1px 6px;border-radius:10px;">12</span>
+        </div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;color:#6b6560;font-size:13px;border-radius:8px;margin:2px 8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:#a09a94;"></div>订单管理
+        </div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;color:#6b6560;font-size:13px;border-radius:8px;margin:2px 8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:#a09a94;"></div>团购管理
+        </div>
+        <div style="font-size:11px;color:#b5afa8;padding:8px 12px;text-transform:uppercase;letter-spacing:0.5px;margin-top:8px;">系统设置</div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;color:#6b6560;font-size:13px;border-radius:8px;margin:2px 8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:#a09a94;"></div>平台配置
+        </div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;color:#6b6560;font-size:13px;border-radius:8px;margin:2px 8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:#a09a94;"></div>用户管理
+        </div>
+        <div style="height:40px;display:flex;align-items:center;padding:0 12px;gap:10px;color:#6b6560;font-size:13px;border-radius:8px;margin:2px 8px;">
+          <div style="width:16px;height:16px;border-radius:4px;background:#a09a94;"></div>角色管理
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <table class="spec-table">
+    <tr><th style="width:120px;">属性</th><th>值</th></tr>
+    <tr><td>侧边栏</td><td>暖灰 <span class="color-swatch" style="background:#faf9f7;"></span>#FAF9F7，激活项白色卡片浮起 + 陶土橙文字 <span class="color-swatch" style="background:#c45d2c;"></span>#C45D2C</td></tr>
+    <tr><td>内容区背景</td><td><span class="color-swatch" style="background:#f5f3f0;"></span>#F5F3F0 — 暖调米灰</td></tr>
+    <tr><td>圆角</td><td>按钮/输入框 8px，表格 10px，菜单项 8px，标签 6px — 整体更圆润柔和</td></tr>
+    <tr><td>阴影</td><td>激活菜单项 box-shadow: 0 1px 3px rgba(0,0,0,0.06)，替代硬边框</td></tr>
+    <tr><td>质感</td><td>暖色系贯穿全局，无冷色（纯灰/纯蓝），所有元素带温度</td></tr>
+  </table>
+</div>
+
+<hr class="section-divider">
+
+<!-- ==================== Comparison ==================== -->
+<div class="direction-section">
+  <div class="direction-header">
+    <h2>三方案对比</h2>
+  </div>
+  <table class="spec-table">
+    <tr>
+      <th></th>
+      <th style="text-align:center;">A 极简白</th>
+      <th style="text-align:center;">B 深邃专业</th>
+      <th style="text-align:center;">C 柔和精致</th>
+    </tr>
+    <tr>
+      <td>侧边栏风格</td>
+      <td style="text-align:center;">白色，橙色激活</td>
+      <td style="text-align:center;">深黑，橙色激活</td>
+      <td style="text-align:center;">暖灰，白色卡片激活</td>
+    </tr>
+    <tr>
+      <td>内容区基调</td>
+      <td style="text-align:center;">冷灰 #F7F8FA</td>
+      <td style="text-align:center;">冷灰 #F4F5F7</td>
+      <td style="text-align:center;">暖米 #F5F3F0</td>
+    </tr>
+    <tr>
+      <td>品牌色</td>
+      <td style="text-align:center;"><span class="color-swatch" style="background:#FF6B35;"></span>亮橙 #FF6B35</td>
+      <td style="text-align:center;"><span class="color-swatch" style="background:#FF6B35;"></span>亮橙 + <span class="color-swatch" style="background:#0f1117;"></span>深黑</td>
+      <td style="text-align:center;"><span class="color-swatch" style="background:#c45d2c;"></span>陶土橙 #C45D2C</td>
+    </tr>
+    <tr>
+      <td>圆角</td>
+      <td style="text-align:center;">6px（利落）</td>
+      <td style="text-align:center;">6px（利落）</td>
+      <td style="text-align:center;">8-10px（柔和）</td>
+    </tr>
+    <tr>
+      <td>视觉重量</td>
+      <td style="text-align:center;">轻</td>
+      <td style="text-align:center;">中</td>
+      <td style="text-align:center;">中偏重</td>
+    </tr>
+    <tr>
+      <td>长时间使用疲劳度</td>
+      <td style="text-align:center;">低</td>
+      <td style="text-align:center;">低</td>
+      <td style="text-align:center;">中低</td>
+    </tr>
+    <tr>
+      <td>品牌辨识度</td>
+      <td style="text-align:center;">中</td>
+      <td style="text-align:center;">高</td>
+      <td style="text-align:center;">最高</td>
+    </tr>
+    <tr>
+      <td>改造难度</td>
+      <td style="text-align:center;">低（改色为主）</td>
+      <td style="text-align:center;">中（侧栏重构）</td>
+      <td style="text-align:center;">中高（全局圆角+阴影）</td>
+    </tr>
+    <tr>
+      <td>适合场景</td>
+      <td style="text-align:center;">高频操作型后台</td>
+      <td style="text-align:center;">专业工具型后台</td>
+      <td style="text-align:center;">品质导向型产品</td>
+    </tr>
+  </table>
+
+  <div class="note-box" style="margin-top:24px;">
+    <strong>我的推荐</strong>：方案 A（极简白）。理由：<br>
+    1. 改造成本最低——主要是颜色替换，不碰布局结构<br>
+    2. 与已完成的登录页（橙色品牌色）自然衔接<br>
+    3. 白色侧栏是当前 SaaS 后台的主流趋势，用户零学习成本<br>
+    4. Element UI 2.x 的组件在白色底上表现最好，不需要大量覆盖样式<br>
+    <br>
+    如果你更看重品牌调性和差异化，方案 C 是更有辨识度的选择。
+  </div>
+</div>
+
+<div style="height:60px;"></div>
+
+</body>
+</html>

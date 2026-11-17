@@ -1,0 +1,78 @@
+<!--pages/coupon/coupon.wxml-->
+<view class="coupon-page">
+  <view class="tabs-bar">
+    <view class="tab-item {{item.id===status?'active':''}}" wx:for="{{tabs}}" wx:key="item" bindtap="tabChange" data-status="{{item.id}}">
+      <view class="tab-text">{{item.name}}</view>
+      <view class="tab-indicator" wx:if="{{item.id===status}}"></view>
+    </view>
+  </view>
+
+  <view class="coupon-list">
+    <block wx:if="{{MainList.length}}">
+      <block wx:if="{{status==0}}">
+        <view class="no-use-card" wx:if="{{from}}" bindtap="choose" data-couponId="0">
+          <text class="no-use-name">不使用优惠券</text>
+          <view class="radio {{couponId===0?'radio-active':''}}">
+            <view class="radio-dot" wx:if="{{couponId===0}}"></view>
+          </view>
+        </view>
+      </block>
+
+      <view class="coupon-card {{item.enable?'':'coupon-disabled'}}" wx:for="{{MainList}}" wx:key="couponId" data-info="{{item}}" bindtap="choose" data-couponId="{{item.couponId}}" data-index="{{index}}">
+        <block wx:if="{{from}}">
+          <block wx:if="{{item.status !=0}}">
+            <view class="overlay-tip">
+              <view class="overlay-box">
+                <view class="overlay-label">{{item.status===1?'已使用':'已过期'}}</view>
+              </view>
+            </view>
+          </block>
+          <block wx:elif="{{item.type == 1||item.type == 3}}">
+            <block wx:if="{{item.enable == false}}">
+              <view class="overlay-tip">
+                <view class="overlay-box">
+                  <view class="overlay-label">不符合使用条件</view>
+                </view>
+              </view>
+            </block>
+          </block>
+          <block wx:elif="{{item.type == 2}}">
+            <block wx:if="{{item.enable == false}}">
+              <view class="overlay-tip">
+                <view class="overlay-box">
+                  <view class="overlay-label">不符合使用条件</view>
+                </view>
+              </view>
+            </block>
+          </block>
+        </block>
+
+        <view class="coupon-left {{item.type===2?'coupon-left-money':'coupon-left-time'}}">
+          <view class="coupon-left-inner">
+            <block wx:if="{{item.type===1||item.type===3}}">
+              <view class="coupon-value">{{item.price}}<text class="coupon-unit">小时</text></view>
+              <view class="coupon-condition">满{{item.minUsePrice}}小时可用</view>
+            </block>
+            <block wx:if="{{item.type===2}}">
+              <view class="coupon-value"><text class="coupon-symbol">￥</text>{{item.price}}<text class="coupon-unit">元</text></view>
+              <view class="coupon-condition">满{{item.minUsePrice}}元可用</view>
+            </block>
+          </view>
+        </view>
+
+        <view class="coupon-right">
+          <view class="coupon-name">{{item.couponName}}</view>
+          <view class="coupon-detail"><text class="coupon-detail-label">类型</text>{{item.type===1?'抵扣券':item.type===2?'满减券':'加时券'}}</view>
+          <view class="coupon-detail"><text class="coupon-detail-label">门店</text>{{item.storeName?item.storeName:'不限制门店'}}</view>
+          <view class="coupon-detail"><text class="coupon-detail-label">包间</text>{{item.roomType===1?'小包':item.roomType===2?'中包':item.roomType===3?'大包':item.roomType===4?'豪包':item.roomType===5?'商务包':item.roomType===6?'豪华包间':item.roomType===7?'贵宾包间':item.roomType===8?'至尊包间':'不限制'}}</view>
+          <view class="coupon-detail"><text class="coupon-detail-label">有效期至</text>{{item.expriceTime}}</view>
+        </view>
+      </view>
+    </block>
+
+    <view class="empty-state" wx:else>
+      <image lazy-load src="https://oss.systemdiv.com/f0c01d80c958cb7a9d51a161475c433f967928e97ef3894c2216401436a2ae64.png" class="empty-icon" />
+      <view class="empty-text">暂无卡券</view>
+    </view>
+  </view>
+</view>

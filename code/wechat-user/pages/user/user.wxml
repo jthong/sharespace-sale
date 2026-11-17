@@ -1,0 +1,196 @@
+<view class="logo-top" style="padding-top:{{statusBarHeight+10}}px">
+  <view class="header-decor"></view>
+  <view class="name">个人中心</view>
+</view>
+
+<!-- 骨架屏 -->
+<skeleton type="profile" loading="{{skeletonLoading}}" />
+
+<view class="container" wx:if="{{!skeletonLoading}}">
+  <!-- 顶部绿色品牌区 -->
+  <view class="header">
+    <block wx:if="{{isLogin}}">
+      <button hover-class="button-click" class="userInfo" bind:tap="gotosetuserinfo">
+        <view class="left">
+          <view class="photo">
+            <image lazy-load src="{{userinfo.avatar?userinfo.avatar:'https://oss.systemdiv.com/775b494fdf70e3a9063a0a570a2827a843e0c0c0930229f9ce15a486b80114d4.png'}}" mode="aspectFill"></image>
+          </view>
+          <view class="info">
+            <view class="name">{{userinfo.nickname.length?userinfo.nickname:"暂无昵称"}}</view>
+            <view class="phone">{{userinfo.mobile}}</view>
+          </view>
+        </view>
+        <image lazy-load class="setting" src="https://oss.systemdiv.com/224b48f95d674ec569f87ff785b476fceb410d119dfe14547cc7d8d7d42f882e.png" />
+      </button>
+    </block>
+    <block wx:else>
+      <navigator hover-class="button-click" class="userInfo" url="../login/login">
+        <view class="left">
+          <view class="photo photo-empty">
+            <iconfont name="huiyuan" size="48" color="#47BA91"></iconfont>
+          </view>
+          <view class="info">
+            <view class="name">点击登录</view>
+            <view class="phone">登录后查看账户信息</view>
+          </view>
+        </view>
+        <iconfont name="right" color="#ffffff" size="26"></iconfont>
+      </navigator>
+    </block>
+
+    <!-- 资产四格（白卡浮出） -->
+    <view class="asset-row">
+      <navigator class="asset-item" url="{{isLogin?'../getBalance/getBalance':'../login/login'}}">
+        <view class="asset-num">{{isLogin?('¥'+userinfo.balance):'--'}}</view>
+        <view class="asset-label">余额</view>
+      </navigator>
+      <navigator class="asset-item" url="{{isLogin?'../getBalance/getBalance':'../login/login'}}">
+        <view class="asset-num">{{isLogin?('¥'+userinfo.giftBalance):'--'}}</view>
+        <view class="asset-label">赠送</view>
+      </navigator>
+      <view class="asset-item" bind:tap="goScore">
+        <view class="asset-num">0</view>
+        <view class="asset-label">积分</view>
+      </view>
+      <view class="asset-item" bind:tap="goCoupon">
+        <view class="asset-num">{{userinfo.couponCount}}</view>
+        <view class="asset-label">优惠券</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 内容区（淡青斜纹） -->
+  <view class="info-container">
+    <!-- 快捷入口 -->
+    <view class="line-box">
+      <navigator class="item" url="/pages/recharge/recharge" open-type="switchTab">
+        <view class="line-icon" style="background: rgba(71, 186, 145, 0.1)">
+          <iconfont name="taocan" size="30" color="#47BA91"></iconfont>
+        </view>
+        <text>优惠中心</text>
+      </navigator>
+      <navigator class="item" url="{{isLogin?'../join/join':'../login/login'}}">
+        <view class="line-icon" style="background: rgba(71,186,145,0.1)">
+          <iconfont name="jiaruwomen" size="30" color="#47BA91"></iconfont>
+        </view>
+        <text>加入我们</text>
+      </navigator>
+    </view>
+
+    <!-- 常用功能 -->
+    <view class="control-box">
+      <view class="top">常用功能</view>
+      <view class="control">
+        <navigator class="item" url="/pages/orderList/orderList" open-type="switchTab">
+          <view class="icon-wrap"><iconfont name="dingdan" size="34" color="#47BA91"></iconfont></view>
+          <text>预定订单</text>
+        </navigator>
+        <navigator class="item" url="{{isLogin?'../productOrder/productOrder':'../login/login'}}">
+          <view class="icon-wrap"><iconfont name="shangpindingdan1" size="34" color="#47BA91"></iconfont></view>
+          <text>商品订单</text>
+        </navigator>
+        <navigator class="item" url="{{isLogin?'../myBalance/myBalance':'../login/login'}}">
+          <view class="icon-wrap"><iconfont name="zhangdan" size="34" color="#47BA91"></iconfont></view>
+          <text>余额账单</text>
+        </navigator>
+        <navigator class="item" url="../coupon/coupon">
+          <view class="icon-wrap"><iconfont name="youhuiquan" size="34" color="#47BA91"></iconfont></view>
+          <text>我的优惠券</text>
+        </navigator>
+        <navigator class="item" url="../yeepay/index" wx:if="{{isLogin}}">
+          <view class="icon-wrap"><iconfont name="youhuikaquan" size="34" color="#47BA91"></iconfont></view>
+          <text>收款账户</text>
+        </navigator>
+        <navigator class="item" url="../help/help">
+          <view class="icon-wrap"><iconfont name="changjianwentixiangguanwenti" size="34" color="#47BA91"></iconfont></view>
+          <text>常见问题</text>
+        </navigator>
+        <navigator class="item" url="../searchOrder/index">
+          <view class="icon-wrap"><iconfont name="sousuo" size="34" color="#47BA91"></iconfont></view>
+          <text>订单查询</text>
+        </navigator>
+        <navigator class="item" url="../inventory/index" wx:if="{{isLogin}}">
+          <view class="icon-wrap"><iconfont name="huiyuanlibao" size="34" color="#47BA91"></iconfont></view>
+          <text>商品存取</text>
+        </navigator>
+      </view>
+    </view>
+
+    <!-- 功能专区（管理员） -->
+    <block wx:if="{{isLogin && userinfo.userType!= 11}}">
+      <view class="control-box admin-box">
+        <view class="top">功能专区</view>
+        <view class="control" wx:if="{{userinfo.userType!= 14}}">
+          <navigator class="item" url="/packageA/pages/setStore/setStore">
+            <view class="icon-wrap admin"><iconfont name="mendian" size="34" color="#47BA91"></iconfont></view>
+            <view>门店管理</view>
+          </navigator>
+          <navigator class="item" url="/packageA/pages/roomList/roomList">
+            <view class="icon-wrap admin"><iconfont name="fangjian" size="34" color="#47BA91"></iconfont></view>
+            <view>房间控制</view>
+          </navigator>
+          <navigator class="item" url="/packageA/pages/SetOrder/SetOrder">
+            <view class="icon-wrap admin"><iconfont name="dingdan1" size="34" color="#47BA91"></iconfont></view>
+            <view>订单管理</view>
+          </navigator>
+          <navigator class="item" url="/packageA/pages/setVip/setVip">
+            <view class="icon-wrap admin"><iconfont name="huiyuan" size="34" color="#47BA91"></iconfont></view>
+            <view>用户管理</view>
+          </navigator>
+          <navigator class="item" url="/packageA/pages/scanQr/scanQr">
+            <view class="icon-wrap admin"><iconfont name="tuangou" size="34" color="#47BA91"></iconfont></view>
+            <view>团购验券</view>
+          </navigator>
+          <navigator class="item" url="/packageA/pages/taskManager/taskManager">
+            <view class="icon-wrap admin"><iconfont name="baojie" size="34" color="#47BA91"></iconfont></view>
+            <view>保洁订单</view>
+          </navigator>
+          <navigator class="item" url="/packageA/pages/statics/statics">
+            <view class="icon-wrap admin"><iconfont name="tongjitu" size="34" color="#47BA91"></iconfont></view>
+            <view>数据统计</view>
+          </navigator>
+          <navigator class="item" url="/packageA/pages/addLock/addLock">
+            <view class="icon-wrap admin"><iconfont name="e23lock" size="34" color="#47BA91"></iconfont></view>
+            <text>门锁配置</text>
+          </navigator>
+        </view>
+        <view class="control" wx:else>
+          <navigator class="item" url="/packageA/pages/task/task">
+            <view class="icon-wrap admin"><iconfont name="iov-store" size="34" color="#47BA91"></iconfont></view>
+            <view>任务大厅</view>
+          </navigator>
+          <navigator class="item" url="/packageA/pages/roomList/roomList">
+            <view class="icon-wrap admin"><iconfont name="shebeiguanli" size="34" color="#47BA91"></iconfont></view>
+            <view>房间状态</view>
+          </navigator>
+          <navigator class="item" url="/packageA/pages/taskStatics/taskStatics">
+            <view class="icon-wrap admin"><iconfont name="duiqifangshi2" size="34" color="#47BA91"></iconfont></view>
+            <view>任务统计</view>
+          </navigator>
+        </view>
+      </view>
+    </block>
+  </view>
+  <view class="version">v26.02.23</view>
+</view>
+
+<view wx:if="{{showExpireModal}}" class="expire-mask">
+  <view class="expire-modal">
+    <view class="expire-title">到期提醒</view>
+    <view class="expire-info">请及时联系管理员进行续期</view>
+    <scroll-view scroll-y class="expire-list">
+      <block wx:for="{{serviceInfo}}" wx:key="id">
+        <view class="expire-item" wx:if="{{item.show}}">
+          <view class="name-box">
+            <text class="name-type">{{item.type==1?'租户':item.type==2?'门店':item.type==3?'团购核销':'未知'}}</text>
+            <text class="name">{{item.name}}</text>
+          </view>
+          <text class="date">到期时间{{item.expireDate}}</text>
+        </view>
+      </block>
+    </scroll-view>
+    <view class="expire-footer">
+      <button class="btn primary" bindtap="closeExpireModal">我知道了</button>
+    </view>
+  </view>
+</view>

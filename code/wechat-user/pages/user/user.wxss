@@ -1,0 +1,373 @@
+/* pages/user/user.wxss — 雀小仙风格重做 */
+.logo-top {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 20rpx 0;
+  background: var(--main-gradient);
+  z-index: -1;
+  overflow: hidden;
+}
+
+.header-decor {
+  position: absolute;
+  width: 400rpx;
+  height: 400rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  top: -100rpx;
+  right: -80rpx;
+}
+
+.logo-top .name {
+  color: #FFFFFF;
+  font-weight: 400;
+  font-size: 34rpx;
+  text-align: center;
+  position: relative;
+  z-index: 100;
+}
+
+.container {
+  padding-bottom: 38rpx;
+}
+
+/* ===== 顶部品牌区 ===== */
+.header {
+  padding: 24rpx 26rpx 0 26rpx;
+  background: var(--main-gradient);
+}
+
+.header .userInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: transparent;
+  padding: 10rpx 0;
+  text-align: left;
+  color: #fff;
+  line-height: 1;
+  border-radius: 0;
+}
+
+.header .userInfo .left {
+  display: flex;
+  margin-left: 8rpx;
+  align-items: center;
+}
+
+.header .userInfo .photo {
+  width: 138rpx;
+  height: 138rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 6rpx solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
+}
+
+.header .userInfo .photo image {
+  width: 100%;
+  height: 100%;
+}
+
+.header .userInfo .photo-empty {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header .userInfo .info {
+  margin-left: 40rpx;
+  font-size: 21rpx;
+  color: #FFFFFF;
+}
+
+.header .userInfo .name {
+  margin-bottom: 12rpx;
+  font-weight: bold;
+  font-size: 36rpx;
+  color: #FFFFFF;
+}
+
+.header .userInfo .phone {
+  font-size: 26rpx;
+  opacity: 0.85;
+}
+
+.setting {
+  width: 42rpx;
+  height: 42rpx;
+  margin-right: 16rpx;
+  opacity: 0.8;
+}
+
+/* ===== 资产四格白卡 ===== */
+.asset-row {
+  display: flex;
+  background: #ffffff;
+  border-radius: 20rpx;
+  padding: 28rpx 8rpx;
+  margin: 26rpx 4rpx 0 4rpx;
+  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+.asset-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.asset-num {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--main-color);
+  line-height: 1.2;
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.asset-label {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
+}
+
+/* ===== 内容区（淡青斜纹） ===== */
+.info-container {
+  background-color: var(--bg-page);
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(71, 186, 145, 0.03) 0px,
+    rgba(71, 186, 145, 0.03) 16px,
+    transparent 16px,
+    transparent 32px
+  );
+  border-radius: var(--radius-lg) var(--radius-lg) 0rpx 0rpx;
+  padding: 16rpx 26rpx;
+  margin-top: 0rpx;
+}
+
+.info-container .top {
+  font-weight: 600;
+  font-size: 32rpx;
+  color: var(--text-primary);
+  padding: 0;
+}
+
+/* 快捷入口（优惠中心/加入我们） */
+.line-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24rpx;
+}
+
+.line-box .item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+  font-size: 30rpx;
+  height: 130rpx;
+  width: 335rpx;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  background: linear-gradient(135deg, #E8F7F2 30%, #fff 100%);
+  color: var(--main-color);
+}
+
+.line-icon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16rpx;
+}
+
+/* 功能宫格 */
+.control-box {
+  background: #FFFFFF;
+  border-radius: var(--radius-md);
+  padding: 24rpx 20rpx;
+  font-weight: 400;
+  font-size: 26rpx;
+  color: var(--text-primary);
+  margin-top: 24rpx;
+  box-shadow: var(--shadow-card);
+}
+
+.control-box .top {
+  font-weight: 600;
+  font-size: 30rpx;
+  color: var(--text-primary);
+  margin-bottom: 8rpx;
+  padding: 0 10rpx;
+}
+
+.control-box .control {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.control-box .control .item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 25%;
+  margin: 20rpx 0;
+}
+
+.control-box .control .item text,
+.control-box .control .item view {
+  font-size: 26rpx;
+  color: var(--text-primary);
+}
+
+.icon-wrap {
+  width: 84rpx;
+  height: 84rpx;
+  border-radius: 24rpx;
+  background: var(--main-color-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12rpx;
+}
+
+.icon-wrap.admin {
+  background: rgba(71, 186, 145, 0.08);
+}
+
+.admin-box {
+  border: 2rpx solid rgba(71, 186, 145, 0.12);
+}
+
+.version {
+  font-size: 22rpx;
+  color: var(--text-tertiary);
+  text-align: center;
+  padding: 30rpx 0;
+}
+
+/* ===== 遮罩层 ===== */
+.expire-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn .25s ease-out;
+}
+
+.expire-mask .expire-modal {
+  width: 680rpx;
+  max-height: 78vh;
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, .18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.expire-mask .expire-title {
+  padding: 36rpx 24rpx;
+  font-size: 34rpx;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-primary);
+  border-bottom: 1rpx solid #f0f0f0;
+  background: var(--bg-section);
+}
+
+.expire-mask .expire-info {
+  font-size: 30rpx;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-price);
+  padding: 10rpx 0;
+}
+
+.expire-mask .expire-list {
+  flex: 1;
+  padding: 0 32rpx;
+  box-sizing: border-box;
+}
+
+.expire-mask .expire-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx 0;
+  border-bottom: 1rpx solid #f7f7f7;
+  font-size: 30rpx;
+  line-height: 1.45;
+}
+
+.expire-mask .expire-item .name-box {
+  flex: 1;
+  min-width: 0;
+  margin-right: 16rpx;
+}
+
+.expire-mask .expire-item .name-type,
+.expire-mask .expire-item .name {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.expire-mask .expire-item .name-type {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  margin-bottom: 4rpx;
+}
+
+.expire-mask .expire-item .name {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.expire-mask .expire-item .date {
+  flex-shrink: 0;
+  font-size: 26rpx;
+  color: var(--text-price);
+}
+
+.expire-mask .expire-footer {
+  padding: 32rpx;
+  display: flex;
+  justify-content: center;
+}
+
+.expire-mask .btn {
+  width: 240rpx;
+  height: 76rpx;
+  line-height: 76rpx;
+  text-align: center;
+  font-size: 30rpx;
+  border-radius: var(--radius-full);
+  border: none;
+}
+
+.expire-mask .primary {
+  background: var(--main-gradient);
+  color: #fff;
+  box-shadow: var(--shadow-button);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(.95); }
+  to   { opacity: 1; transform: scale(1); }
+}

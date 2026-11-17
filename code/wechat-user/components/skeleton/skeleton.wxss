@@ -1,0 +1,192 @@
+/* skeleton.wxss */
+.skeleton-wrap {
+  padding: 20rpx 26rpx;
+}
+
+/* ========== store-card ========== */
+.sk-store-card {
+  display: flex;
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+  box-shadow: var(--shadow-card);
+}
+
+.sk-store-card .sk-img {
+  width: 200rpx;
+  height: 260rpx;
+  border-radius: 15rpx;
+  flex-shrink: 0;
+  margin-right: 20rpx;
+}
+
+.sk-text-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-top: 10rpx;
+}
+
+.sk-title {
+  width: 60%;
+  height: 36rpx;
+  margin-bottom: 16rpx;
+}
+
+.sk-addr {
+  width: 90%;
+  height: 24rpx;
+  margin-bottom: 10rpx;
+}
+
+.sk-addr.short {
+  width: 50%;
+}
+
+.sk-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20rpx;
+}
+
+.sk-tag {
+  width: 120rpx;
+  height: 40rpx;
+  border-radius: 20rpx;
+}
+
+.sk-btn {
+  width: 160rpx;
+  height: 58rpx;
+  border-radius: 10rpx;
+}
+
+/* ========== list ========== */
+.sk-list-item {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 24rpx 26rpx;
+  margin-bottom: 20rpx;
+  box-shadow: var(--shadow-card);
+}
+
+.sk-list-top {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+
+.sk-list-icon {
+  width: 35rpx;
+  height: 32rpx;
+  margin-right: 16rpx;
+}
+
+.sk-list-title {
+  width: 300rpx;
+  height: 32rpx;
+}
+
+.sk-list-line {
+  width: 70%;
+  height: 28rpx;
+  margin-bottom: 14rpx;
+}
+
+.sk-list-line.long {
+  width: 90%;
+}
+
+.sk-list-line.medium {
+  width: 50%;
+}
+
+/* ========== profile ========== */
+.sk-profile-header {
+  display: flex;
+  align-items: center;
+  padding: 40rpx 26rpx 30rpx;
+}
+
+.sk-avatar {
+  width: 138rpx;
+  height: 138rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-right: 30rpx;
+}
+
+.sk-profile-info {
+  flex: 1;
+}
+
+.sk-name {
+  width: 200rpx;
+  height: 36rpx;
+  margin-bottom: 16rpx;
+}
+
+.sk-phone {
+  width: 160rpx;
+  height: 28rpx;
+}
+
+.sk-profile-balance {
+  display: flex;
+  justify-content: space-around;
+  background: linear-gradient(180deg, #47BA91 0%, #7FD6B8 100%);
+  border-radius: 18rpx;
+  padding: 30rpx 26rpx;
+  margin: 0 26rpx 20rpx;
+}
+
+.sk-bal-item {
+  width: 180rpx;
+  height: 50rpx;
+  border-radius: 12rpx;
+}
+
+.sk-profile-grid {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 20rpx 26rpx;
+  background: #fff;
+  border-radius: 18rpx;
+  margin: 0 26rpx;
+}
+
+.sk-grid-cell {
+  width: 25%;
+  height: 80rpx;
+  margin: 16rpx 0;
+}
+
+/* ========== card (generic) ========== */
+.sk-card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: var(--shadow-card);
+}
+
+.sk-card-title {
+  width: 40%;
+  height: 36rpx;
+  margin-bottom: 20rpx;
+}
+
+.sk-card-line {
+  width: 80%;
+  height: 28rpx;
+  margin-bottom: 14rpx;
+}
+
+.sk-card-line.short {
+  width: 50%;
+}

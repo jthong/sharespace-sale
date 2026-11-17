@@ -1,0 +1,8 @@
+{
+    "navigationStyle": "custom",
+    "navigationBarTitleText": "个人中心",
+    "usingComponents": {
+      "custom-tabbar": "../../custom-tab-bar",
+      "skeleton": "../../components/skeleton/skeleton"
+    }
+  }

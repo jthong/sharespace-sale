@@ -1,0 +1,2 @@
+com.cloudsteward.framework.security.config.CloudStewardSecurityAutoConfiguration
+com.cloudsteward.framework.security.config.CloudStewardWebSecurityConfigurerAdapter

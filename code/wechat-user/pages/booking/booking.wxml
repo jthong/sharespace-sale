@@ -1,0 +1,311 @@
+<wxs src="../../utils/magic.wxs" module="magic" />
+<view class="containerInfo">
+  <scroll-view scroll-y>
+    <view class="simple">
+      <!-- 功能入口区（对齐雀小仙 4+4） -->
+      <view class="func-grid">
+        <view class="func-item" bind:tap="goGuide">
+          <view class="func-icon">🅿️</view>
+          <text>停车指南</text>
+        </view>
+        <view class="func-item" bind:tap="showWifi">
+          <view class="func-icon">📶</view>
+          <text>一键WIFI</text>
+        </view>
+        <view class="func-item" bind:tap="call">
+          <view class="func-icon">💬</view>
+          <text>客服</text>
+        </view>
+        <view class="func-item" bind:tap="goRecharge">
+          <view class="func-icon">💰</view>
+          <text>充值</text>
+        </view>
+        <view class="func-item" bind:tap="openDoor">
+          <view class="func-icon">🔓</view>
+          <text>开门</text>
+        </view>
+        <view class="func-item" bind:tap="roomRenew">
+          <view class="func-icon">➕</view>
+          <text>续单</text>
+        </view>
+        <view class="func-item" bind:tap="goTencentMap">
+          <view class="func-icon">🧭</view>
+          <text>地图导航</text>
+        </view>
+        <view class="func-item" bind:tap="gototuangou">
+          <view class="func-icon">🎁</view>
+          <text>团购</text>
+        </view>
+      </view>
+      <!-- 门店信息 -->
+      <view class="info-card">
+        <view class="top">
+          <view class="left">
+            <iconfont name="iov-store" size="22"></iconfont>
+            <view class="info">
+              <text class="name">{{doorinfodata.storeName}}</text>
+            </view>
+          </view>
+          <view class="change-btn" bind:tap="goIndexPage">
+            <!-- <image lazy-load src="https://oss.systemdiv.com/a61f32f5e24be7fefb52eae7fe0627c517570f7fbcae624da1888520bc1639f0.png" /> -->
+            <text>切换门店</text>
+          </view>
+        </view>
+        <view class="bottom">
+          <text class="location">{{doorinfodata.address}}</text>
+          <view class="item" bind:tap="onClickShow" data-index="0">
+            <image lazy-load src="https://oss.systemdiv.com/970a60b5350f87ea69eb70b0a1e531925387fdd1f674e0d90fff84abcc848fba.png" />
+            <text>导航</text>
+          </view>
+          <view class="line"></view>
+          <view class="item" bind:tap="onClickShow" data-index="1">
+            <image lazy-load src="https://oss.systemdiv.com/11920b033c1caa098576eb941433624ad8cd0694b837f09af93731c3d5d12cbc.png" />
+            <text>电话</text>
+          </view>
+        </view>
+        <view class="distant">
+          <view catchtap="goTencentMap" class="color-primary"></view>
+          <text style="color: var(--main-color);" catchtap="goTencentMap">距我{{doorinfodata.distance}}km</text>
+        </view>
+      </view>
+      <!-- 状态规则说明（对齐雀小仙） -->
+      <view class="rule-bar">
+        <view class="rule"><view class="dot dot-orange"></view><text>消费中，不可选</text></view>
+        <view class="rule"><view class="dot dot-gray"></view><text>空闲中，可预约</text></view>
+      </view>
+      <view class="top-tabs-container" wx:if="{{roomClass&&roomClass.length>1}}">
+        <view class="top-tabs {{tabIndex === item.value && 'active'}}" wx:for="{{roomClass}}" data-index="{{item.value}}" bind:tap="tabChange">
+            <iconfont name="majiangfa" size="35" data-index="{{item.value}}" bind:tap="tabChange" wx:if="{{item.value==0}}"></iconfont>
+            <iconfont name="taiqiu" size="35" data-index="{{item.value}}" bind:tap="tabChange" wx:if="{{item.value==1}}"></iconfont>
+            <iconfont name="KTV" size="35" data-index="{{item.value}}" bind:tap="tabChange" wx:if="{{item.value==2}}"></iconfont>
+            <view class="tab" data-index="{{item.value}}" bind:tap="tabChange">{{item.text}}</view>
+        </view>
+  </view>
+      <!-- 棋牌、KTV 房间列表 -->
+      <view class="lists" wx:if="{{tabIndex == 0 || tabIndex == 2}}" wx:for="{{doorlistArr}}" wx:key="doorlistArr" id="roomList">
+        <view class="item">
+          <view class="top">
+            <view class="left">
+              <block wx:if="{{item.imageUrls.length>0}}">
+                <image lazy-load class="img" src="{{magic.split(item.imageUrls)[0]}}" catchtap="imgYu" data-index="{{index}}" mode="aspectFill"></image>
+              </block>
+              <block wx:else>
+                <image lazy-load class="img" src="https://oss.systemdiv.com/775b494fdf70e3a9063a0a570a2827a843e0c0c0930229f9ce15a486b80114d4.png" mode="aspectFill"></image>
+              </block>
+              <view class="img-mask" wx:if="{{item.status == 3}}"></view>
+              <block wx:if="{{item.status == 0}}">
+                <view class="flag disabled">禁用</view>
+              </block>
+              <block wx:elif="{{item.status == 1}}">
+                <view class="flag undo">空闲中</view>
+              </block>
+              <block wx:elif="{{item.status == 2}}">
+                <view class="flag daiqingjie">待清洁</view>
+              </block>
+              <block wx:elif="{{item.status == 3}}">
+                <view class="flag doing">使用中</view>
+              </block>
+              <block wx:else>
+                <view class="flag bukeyong">已预约</view>
+              </block>
+            </view>
+            <view class="right">
+              <view class="r-top">
+                <view class="room-name">{{item.displayName}}</view>
+                <view class="r-right">
+                  <view class="status-btn s-btn-1" wx:if="{{item.status == 1}}" bind:tap="goOrder" data-status="1" data-index="{{index}}" data-info="{{item.roomId}}">预定</view>
+                  <view class="status-btn s-btn-2" wx:elif="{{item.status == 2}}" bind:tap="goOrder" data-status="2" data-index="{{index}}" data-info="{{item.roomId}}">待清洁</view>
+                  <view class="status-btn s-btn-0" wx:elif="{{item.status == 0}}">禁用</view>
+                  <view class="status-btn s-btn-3" wx:elif="{{item.status == 3}}">使用中</view>
+                  <view class="status-btn s-btn-4" wx:else>已预约</view>
+                </view>
+              </view>
+              <view class="tags-2col">
+                <text wx:for="{{magic.split(item.label)}}" wx:for-item="labelitem" wx:key="label" class="tag2">{{labelitem}}</text>
+              </view>
+              <view class="pkg-line" wx:for="{{item.pkgList}}" wx:for-item="pkgItem">
+                {{pkgItem.pkgName}} ￥{{pkgItem.price}}
+              </view>
+              <view class="r-bottom">
+                <view class="price-box">
+                  <view class="price">
+                    <label class="color-attention">¥{{item.priceText}}</label>
+                    <text class="unit">/1小时</text>
+                  </view>
+                  <view class="member-price" wx:if="{{item.vipPriceList}}">
+                    会员<label class="color-attention">￥{{item.vipPriceList[item.vipPriceList.length-1].price}}</label>/时起
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+          <view class="timeIndexPrice">
+            <view class="index" wx:if="{{item.morningPrice}}">
+            上午场
+            <text class="price"> ￥{{item.morningPrice}}</text>
+            </view>
+            <view class="index" wx:if="{{item.afternoonPrice}}">
+            下午场
+            <text class="price"> ￥{{item.afternoonPrice}}</text>
+            </view>
+            <view class="index" wx:if="{{item.nightPrice}}">
+            夜间场
+            <text class="price"> ￥{{item.nightPrice}}</text>
+            </view>
+            <view class="index" wx:if="{{item.txPrice}}">
+            通宵场
+            <text class="price"> ￥{{item.txPrice}}</text>
+            </view>
+          </view>
+          <view class="foot">
+            <view class="foot-top">
+              <view class="time-line">
+                <image lazy-load class="time-icon" src="https://oss.systemdiv.com/6cdeb97290bd25c0ff961186ebe435eee4b721e92e5fd02402795c61901e2c93.png" wx:if="{{item.timeText}}" />
+                <text wx:if="{{item.timeText}}">{{item.timeText}}被预定</text>
+              </view>
+              <view class="more" catchtap="onShowReserve" data-list="{{item.orderTimeList}}" wx:if="{{item.orderTimeList.length>1}}">
+                更多
+              </view>
+            </view>
+            <view class="times-bar">
+              <view wx:for="{{timeHourAllArr[index]}}" wx:for-item="houritem2" wx:key="hour" class="slot {{houritem2.disable?'busy':'free'}}"></view>
+            </view>
+            <view class="times-scale">
+              <text wx:for="{{timeHourAllArr[index]}}" wx:for-item="h2" wx:for-index="hIdx" wx:key="hour">{{hIdx}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      <!-- 棋牌房间列表 -->
+      <view class="tab-container" wx:if="{{tabIndex == 1}}" wx:key="doorlistArr" id="roomList">
+        <view class="tab-item" wx:for="{{doorlistArr}}">
+          <view class="tab-left">
+            <view class="tab-left-top">
+              <!-- 无订单立即开台 状态  1空闲 2待清洁  4已预约  -->
+              <view class="tab-img-box-begin" wx:if="{{item.status==1 || item.status==2 || item.status==4}}" bind:tap="goOrder" data-status="{{item.status}}" data-index="{{index}}" data-info="{{item.roomId}}">
+                <view class="tab-info">
+              <text class="tab-roomName">{{item.roomName}}</text>
+              <view class="price">
+                <label class="color-attention">￥{{item.price}}</label>
+                元/小时
+              </view>
+            </view>
+                <view class="tab-button">
+                  <button class="begin-button">开台</button>
+                </view>
+              </view>
+              <!-- 有订单 显示等待时间 -->
+              <view class="tab-img-box-wait" wx:if="{{item.status==3&&item.endTime}}" bind:tap="goOrder" data-status="{{item.status}}" data-index="{{index}}" data-info="{{item.roomId}}">
+                <view class="tab-wait">
+                  <text class="tab-wait-roomName">{{item.roomName}}</text>
+                  <view></view>
+                  <text style="font-size: 26rpx;color: rgb(83, 83, 83);">即将空闲</text>
+                </view>
+                <view class="tab-wait-time">
+                  <view class="time-number">{{item.waitTime.hours}}</view>
+                  <view style="width: 10rpx;"></view>
+                  <view class="time-date">时</view>
+                  <view style="width: 10rpx;"></view>
+                  <view class="time-number">{{item.waitTime.minutes}}</view>
+                  <view style="width: 10rpx;"></view>
+                  <view class="time-date">分</view>
+                </view>
+              </view>
+              <!-- 禁用状态 -->
+              <view class="tab-img-box-wait" wx:if="{{item.status==0}}">
+                <view class="tab-wait">
+                  <text class="tab-wait-roomName">{{item.roomName}}</text>
+                  <view></view>
+                </view>
+                <view class="tab-wait-time">
+                  <view class="time-disable">禁用</view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+      <!-- 温馨提示 -->
+      <view class="notes">
+        <image lazy-load src="https://oss.systemdiv.com/845a85e9bf97167a23448be2be0087844f7afcf9d7068227fc2a039e4a29d73b.png" />
+        到底了，没有更多啦~
+      </view>
+    </view>
+
+  </scroll-view>
+</view>
+
+<!-- 导航提示框 -->
+<van-popup round show="{{ show }}" bind:tap="onClickHide">
+  <view class="popup navigation" wx:if="{{popupIndex === 0}}">
+    <view class="title">导航到店</view>
+    <view class="sub-title">可选择您所需要的服务</view>
+    <view class="btn" bind:tap="goTencentMap">
+      <image lazy-load src="https://oss.systemdiv.com/e52f9327c9dd5b18d9462ee1b1fea90dd740d1bd1d97e03b15a665fc6882f3c0.png" />
+      地图导航
+    </view>
+    <view class="btn" bind:tap="goGuide">
+      <image lazy-load src="https://oss.systemdiv.com/2a29d3ddd93f5e7c611e50bf4be5994ed0783a7d968acdf697076317ed6b55c6.png" />
+      位置指引
+    </view>
+  </view>
+  <view class="popup service" wx:if="{{popupIndex === 1}}">
+    <view class="title">联系客服</view>
+    <view class="sub-title">可选择您所需要的服务</view>
+    <view class="btn" bind:tap="call">
+      <image lazy-load src="https://oss.systemdiv.com/1c5cd06bd1c6273fbc83968d20e28119acdfb881d627f17af8c61cb71f44cbc6.png" />
+      {{ doorinfodata.kefuPhone }}
+    </view>
+    <view class="btn" bind:tap="copy" wx:if="{{doorinfodata.kefuWx}}">
+      <image lazy-load src="https://oss.systemdiv.com/248d467e9ddf0f4cfdad7be0ada30a8a9397378d49ad9666a978ba4472cb0075.png" />
+      {{doorinfodata.kefuWx}}
+    </view>
+  </view>
+</van-popup>
+
+<!-- 弹出层提示 -->
+<van-popup round show="{{ popshow }}">
+  <view class="pop">
+    <view class="head bg-primary">门店公告</view>
+    <view class="content">
+      <rich-text nodes="{{doorinfodata.notice}}"></rich-text>
+    </view>
+    <view class="foot border-primary" bind:tap="popClose">我已仔细阅读</view>
+  </view>
+</van-popup>
+
+<van-dialog use-slot title="WiFi信息" class="wifiDialog" show="{{ wifiShow }}">
+  <view class="dialog">
+    <view class="item">
+      <label>WiFi名称: </label>
+      <text>{{doorinfodata.wifiInfo}}</text>
+    </view>
+    <view class="item">
+      <label>Wifi密码: </label>
+      <text>{{doorinfodata.wifiPwd}}</text>
+    </view>
+    <view class="btn">
+      <button class="copy" bind:tap="copyWifi" data-ssid="{{doorinfodata.wifiInfo}}" data-pwd="{{doorinfodata.wifiPwd}}">
+        复制密码
+      </button>
+      <button class="connect" bind:tap="connectWifi" data-ssid="{{doorinfodata.wifiInfo}}" data-pwd="{{doorinfodata.wifiPwd}}">
+        一键连接
+      </button>
+    </view>
+    <view class="info">
+      部分机型不支持一键连接,请复制密码自行连接
+    </view>
+  </view>
+</van-dialog>
+
+<!-- 房间预定时间列表 -->
+<van-popup round show="{{ showReserve }}" bind:tap="onHideReserve">
+  <view class="reserve-box">
+    <view class="title">预定时间</view>
+    <view class="time-line" wx:for="{{orderTimeList}}">
+      <view class="dot"></view>
+      <view class="time-tag"><text>{{item}} </text><text>已预订</text></view>
+    </view>
+    <button>知道了</button>
+  </view>
+</van-popup>

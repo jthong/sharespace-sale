@@ -1,0 +1,57 @@
+<view wx:if="{{loading}}" class="skeleton-wrap">
+  <!-- store-card: doorList 门店列表 -->
+  <block wx:if="{{type === 'store-card'}}">
+    <view class="sk-store-card" wx:for="{{rows}}" wx:key="*this">
+      <view class="skeleton-item sk-img"></view>
+      <view class="sk-text-col">
+        <view class="skeleton-item sk-title"></view>
+        <view class="skeleton-item sk-addr"></view>
+        <view class="skeleton-item sk-addr short"></view>
+        <view class="sk-bottom-row">
+          <view class="skeleton-item sk-tag"></view>
+          <view class="skeleton-item sk-btn"></view>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- list: orderList 等列表页 -->
+  <block wx:elif="{{type === 'list'}}">
+    <view class="sk-list-item" wx:for="{{rows}}" wx:key="*this">
+      <view class="sk-list-top">
+        <view class="skeleton-item sk-list-icon"></view>
+        <view class="skeleton-item sk-list-title"></view>
+      </view>
+      <view class="skeleton-item sk-list-line long"></view>
+      <view class="skeleton-item sk-list-line"></view>
+      <view class="skeleton-item sk-list-line medium"></view>
+    </view>
+  </block>
+
+  <!-- profile: user 个人中心 -->
+  <block wx:elif="{{type === 'profile'}}">
+    <view class="sk-profile-header">
+      <view class="skeleton-item sk-avatar"></view>
+      <view class="sk-profile-info">
+        <view class="skeleton-item sk-name"></view>
+        <view class="skeleton-item sk-phone"></view>
+      </view>
+    </view>
+    <view class="sk-profile-balance">
+      <view class="skeleton-item sk-bal-item"></view>
+      <view class="skeleton-item sk-bal-item"></view>
+    </view>
+    <view class="sk-profile-grid">
+      <view class="skeleton-item sk-grid-cell" wx:for="{{8}}" wx:key="*this"></view>
+    </view>
+  </block>
+
+  <!-- card: 通用卡片（首页房间列表等） -->
+  <block wx:else>
+    <view class="sk-card" wx:for="{{rows}}" wx:key="*this">
+      <view class="skeleton-item sk-card-title"></view>
+      <view class="skeleton-item sk-card-line"></view>
+      <view class="skeleton-item sk-card-line short"></view>
+    </view>
+  </block>
+</view>

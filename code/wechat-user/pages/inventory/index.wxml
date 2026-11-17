@@ -1,0 +1,112 @@
+<!-- pages/storage/storage.wxml -->
+<view class="container">
+
+<!-- 标签切换 -->
+<view class="tabs">
+  <view class="tab-item {{currentTab === 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">
+    <text>待取</text>
+    <view class="tab-line" wx:if="{{currentTab === 0}}"></view>
+  </view>
+  <view class="tab-item {{currentTab === 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">
+    <text>已取</text>
+    <view class="tab-line" wx:if="{{currentTab === 1}}"></view>
+  </view>
+  <view class="tab-item {{currentTab === 2 ? 'active' : ''}}" bindtap="switchTab" data-index="2">
+    <text>过期</text>
+    <view class="tab-line" wx:if="{{currentTab === 2}}"></view>
+  </view>
+</view>
+
+<!-- 门店筛选 -->
+<view class="filter-section">
+  <view class="filter-item">
+    <text class="filter-label">门店名称</text>
+    <input 
+      class="filter-input" 
+      placeholder="请输入门店名称" 
+      value="{{storeNameFilter}}"
+      bindinput="onStoreNameInput"
+    />
+  </view>
+</view>
+
+<!-- 内容区域 -->
+<scroll-view class="content" scroll-y="true">
+  
+  <!-- 待取列表 -->
+  <view wx:if="{{currentTab === 0}}" class="tab-content">
+    <view class="store-card" wx:for="{{dataList}}" wx:key="storeId">
+      <view class="store-header">
+        <text class="store-name">{{item.storeName}}</text>
+      </view>
+      <view class="goods-list">
+        <view class="goods-item" wx:for="{{item.goodsList}}" wx:key="id" wx:for-item="goods">
+          <view class="goods-row-first">
+            <image lazy-load class="goods-img" src="https://oss.systemdiv.com/edbaa6c4acbc7433981d9ca7e9d8d14794e2908a943c98c4edda0d7f784ceb3d.png" mode="aspectFill"></image>
+            <text class="goods-name">{{goods.goodsName}}</text>
+            <view class="goods-tag remaining">
+              <text>剩余 {{goods.stockNum}}{{goods.units}}</text>
+            </view>
+          </view>
+          <view class="goods-row-second">
+            <text class="time-text">存入: {{goods.createTime}} | 到期: {{goods.expireTime}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 已取列表 -->
+  <view wx:if="{{currentTab === 1}}" class="tab-content">
+    <view class="taken-card" wx:for="{{dataList}}" wx:key="storeId">
+      <view class="store-header">
+        <text class="store-name">{{item.storeName}}</text>
+      </view>
+      <view class="goods-list taken">
+        <view class="goods-item" wx:for="{{item.goodsList}}" wx:key="id" wx:for-item="goods">
+          <view class="goods-row-first">
+            <image lazy-load class="goods-img" src="https://oss.systemdiv.com/edbaa6c4acbc7433981d9ca7e9d8d14794e2908a943c98c4edda0d7f784ceb3d.png" mode="aspectFill"></image>
+            <text class="goods-name">{{goods.goodsName}}</text>
+            <view class="goods-tag taken-info">
+              <text> {{ goods.stockNum}}{{goods.units}}</text>
+            </view>
+          </view>
+          <view class="goods-row-second">
+            <text class="time-text">取出: {{goods.createTime}} </text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 过期列表 -->
+  <view wx:if="{{currentTab === 2}}" class="tab-content">
+    <view class="expired-card" wx:for="{{dataList}}" wx:key="storeId">
+      <view class="store-header">
+        <text class="store-name">{{item.storeName}}</text>
+      </view>
+      <view class="goods-list expired">
+        <view class="goods-item" wx:for="{{item.goodsList}}" wx:key="id" wx:for-item="goods">
+          <view class="goods-row-first">
+            <image lazy-load class="goods-img" src="https://oss.systemdiv.com/edbaa6c4acbc7433981d9ca7e9d8d14794e2908a943c98c4edda0d7f784ceb3d.png" mode="aspectFill"></image>
+            <text class="goods-name">{{goods.goodsName}}</text>
+            <view class="goods-tag expired-info">
+              <text>过期 {{goods.stockNum}}{{goods.units}}</text>
+            </view>
+          </view>
+          <view class="goods-row-second">
+            <text class="time-text">存入: {{goods.createTime}} | 到期: {{goods.expireTime}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+<!-- 空状态 -->
+<view class="empty-state" wx:if="{{dataList.length === 0}}">
+  <text class="empty-icon">📦</text>
+  <text class="empty-text">暂无数据</text>
+</view>
+</scroll-view>
+
+</view>
+

@@ -1,0 +1,6 @@
+com.cloudsteward.framework.apilog.config.CloudStewardApiLogAutoConfiguration
+com.cloudsteward.framework.jackson.config.CloudStewardJacksonAutoConfiguration
+com.github.xiaoymin.knife4j.spring.configuration.Knife4jAutoConfiguration
+com.cloudsteward.framework.swagger.config.CloudStewardSwaggerAutoConfiguration
+com.cloudsteward.framework.web.config.CloudStewardWebAutoConfiguration
+com.cloudsteward.framework.xss.config.CloudStewardXssAutoConfiguration

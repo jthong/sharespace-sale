@@ -1,0 +1,7 @@
+{
+    "navigationBarTitleText": "会员管理",
+    "usingComponents": {
+      "van-tab": "../../../components/vant/tab/index",
+      "van-tabs": "../../../components/vant/tabs/index"
+    }
+  }

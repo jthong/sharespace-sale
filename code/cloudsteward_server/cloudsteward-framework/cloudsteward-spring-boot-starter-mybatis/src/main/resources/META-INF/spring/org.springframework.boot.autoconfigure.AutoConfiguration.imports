@@ -1,0 +1,2 @@
+com.cloudsteward.framework.datasource.config.CloudStewardDataSourceAutoConfiguration
+com.cloudsteward.framework.mybatis.config.CloudStewardMybatisAutoConfiguration

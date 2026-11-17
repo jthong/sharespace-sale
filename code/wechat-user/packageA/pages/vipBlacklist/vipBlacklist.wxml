@@ -1,0 +1,65 @@
+<scroll-view scroll-y="true" bindscrolltolower="onReachBottom">
+<view class="container">
+    <!-- 列表 -->
+  <view class="lists" style="flex: 1;">
+    <view class="list">
+    <block wx:if="{{vipBlacklist.length>0}}">
+        <view wx:for="{{vipBlacklist}}" wx:key="vipBlacklist">
+            <view class="store-card">
+            <view class="item">
+                <view class="image-container">
+                    <view wx:if="{{item.avatar}}">
+                        <image lazy-load class="store-card__image" src="{{item.avatar}}" mode="aspectFill"></image>
+                    </view>
+                    <view wx:else>
+                        <image lazy-load class="store-card__image"  src="https://oss.systemdiv.com/775b494fdf70e3a9063a0a570a2827a843e0c0c0930229f9ce15a486b80114d4.png" mode="aspectFill"></image>
+                    </view>
+                </view>
+                <view class="user-info">
+                    <view class="top-info">
+                        {{item.nickname}}
+                        <text>{{item.mobile}}</text>
+                        <button class="remove" bind:tap="showRemove" data-id="{{item.id}}">移除</button>
+                    </view>
+                    <view class="vip-blacklist-item">
+                        <text style="margin-left: 0rpx;">添加时间:{{item.addTimeFormatted}}</text>
+                    </view>
+                </view>
+            </view>
+            </view>
+        </view>
+    </block>
+    <block wx:else>
+      <view style="display: flex;height: 80vh;width: 100%;">
+          <view class="noStoreInfo">
+                <view>
+                    <image lazy-load class="noStore-image" src="https://oss.systemdiv.com/8e546bf756f622c2e3702ec161b3b6b2a971b9807800d0fa6f0d56038487ecbd.png" mode="scaleToFill" />
+                </view>
+                <text>
+                暂无黑名单
+                </text>
+           </view>
+      </view>
+    </block>
+    </view>
+  </view>
+ 
+</view>
+</scroll-view>
+<button class="bottom bg-primary {{isIpx?'fix-iphonex-button':''}}" bind:tap="showAdd">添加黑名单</button>
+<van-dialog use-slot title="添加黑名单" show="{{ showAddBlack }}" show-cancel-button confirm-button-text="确认" bind:confirm="addBlackList" >
+  <view class="dialog">
+    <view class="dialog-item">
+      <label>手机号:</label>
+      <input model:value="{{ userPhone }}" type="number" maxlength="11" style="border: 1px solid var(--main-color);"  placeholder = "请输入"/>
+    </view>
+  </view>
+</van-dialog>
+
+<van-dialog use-slot title="提示" show="{{ showremove }}" show-cancel-button confirm-button-text="确认" bind:confirm="remove" >
+  <view class="dialog">
+    <view class="dialog-item">
+      <text>您确定要将该会员移出黑名单吗</text>
+    </view>
+  </view>
+</van-dialog>

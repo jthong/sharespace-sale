@@ -1,0 +1,8 @@
+{
+    "navigationBarTextStyle": "white",
+    "usingComponents": {
+      },
+    "navigationBarBackgroundColor": "#47BA91",
+    "backgroundColor": "#47BA91",
+    "navigationBarTitleText": "商品点单"
+}

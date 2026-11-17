@@ -1,0 +1,2 @@
+com.cloudsteward.framework.datapermission.config.CloudStewardDataPermissionAutoConfiguration
+com.cloudsteward.framework.datapermission.config.CloudStewardDeptDataPermissionAutoConfiguration

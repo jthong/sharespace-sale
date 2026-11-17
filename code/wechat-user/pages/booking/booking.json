@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "van-search": "../../components/vant/search/index",
+    "custom-tabbar": "../../custom-tab-bar"
+  }
+}

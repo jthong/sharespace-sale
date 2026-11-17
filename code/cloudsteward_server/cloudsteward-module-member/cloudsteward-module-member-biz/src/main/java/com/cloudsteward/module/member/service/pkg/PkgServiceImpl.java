@@ -1,0 +1,318 @@
+package com.cloudsteward.module.member.service.pkg;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.cloudsteward.framework.common.pojo.PageResult;
+import com.cloudsteward.framework.security.core.LoginUser;
+import com.cloudsteward.framework.security.core.util.SecurityFrameworkUtils;
+import com.cloudsteward.framework.tenant.core.context.TenantContextHolder;
+import com.cloudsteward.module.member.controller.app.order.vo.WxPayOrderInfo;
+import com.cloudsteward.module.member.controller.app.order.vo.WxPayOrderRespVO;
+import com.cloudsteward.module.member.controller.app.pkg.vo.*;
+import com.cloudsteward.module.member.dal.dataobject.pkginfo.PkgInfoDO;
+import com.cloudsteward.module.member.dal.dataobject.pkguserinfo.PkgUserInfoDO;
+import com.cloudsteward.module.member.dal.mysql.pkginfo.PkgInfoMapper;
+import com.cloudsteward.module.member.dal.mysql.pkguserinfo.PkgUserInfoMapper;
+import com.cloudsteward.module.member.dal.mysql.storeuser.StoreUserMapper;
+import com.cloudsteward.module.member.enums.AppEnum;
+import com.cloudsteward.module.member.enums.AppWxPayTypeEnum;
+import com.cloudsteward.module.member.service.payorder.PayOrderService;
+import com.cloudsteward.module.member.service.storeinfo.StoreInfoService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
+
+import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import static com.cloudsteward.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static com.cloudsteward.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
+import static com.cloudsteward.framework.web.core.util.WebFrameworkUtils.getLoginUserType;
+import static com.cloudsteward.module.member.enums.AppEnum.WX_PAY_ORDER;
+import static com.cloudsteward.module.member.enums.ErrorCodeConstants.*;
+
+@Service
+@Validated
+@Slf4j
+public class PkgServiceImpl implements PkgService {
+
+    @Resource
+    private PkgInfoMapper pkgInfoMapper;
+
+    @Resource
+    private PkgUserInfoMapper pkgUserInfoMapper;
+
+    @Resource
+    private StoreUserMapper storeUserMapper;
+
+    @Resource
+    private StoreInfoService storeInfoService;
+
+    @Resource
+    private PayOrderService payOrderService;
+
+    @Resource
+    private RedisTemplate redisTemplate;
+
+    @Override
+    public PageResult<AppAdminPkgPageRespVO> getAdminPkgPage(AppAdminPkgPageReqVO reqVO) {
+        // 校验用户类型
+        storeInfoService.checkPermission(null, null, getLoginUserType(), AppEnum.member_user_type.ADMIN.getValue());
+        //仅限查看当前用户所在门店的
+        String storeIds = storeUserMapper.getIdsByUserIdAndAdmin(getLoginUserId()).stream().collect(Collectors.joining(","));
+        if (StringUtils.isEmpty(storeIds)) {
+            return PageResult.empty();
+        }
+        IPage<AppAdminPkgPageRespVO> page = new Page<>(reqVO.getPageNo(), reqVO.getPageSize());
+        pkgInfoMapper.getAdminPkgPage(page, reqVO, storeIds);
+        return new PageResult<>(page.getRecords(), page.getTotal());
+    }
+
+    @Override
+    @Transactional
+    public void saveAdminPkg(AppAdminPkgSaveReqVO reqVO) {
+        // 校验用户类型
+        storeInfoService.checkPermission(reqVO.getStoreId(), getLoginUserId(), getLoginUserType(), AppEnum.member_user_type.ADMIN.getValue());
+        // 判断美团团购id 是否 已经重复
+        if (!ObjectUtils.isEmpty(reqVO.getMtId())) {
+            PkgInfoDO mtPkgInfo = pkgInfoMapper.selectOne(PkgInfoDO::getMtId, reqVO.getMtId(), PkgInfoDO::getStoreId, reqVO.getStoreId());
+            if (mtPkgInfo != null) {
+                // 新增套餐 传递的美团团购id已经存在则抛出异常
+                if (reqVO.getPkgId() == null) {
+                    throw exception(PKGINFO_MTID_EXIST);
+                }
+                // 修改操作 判断查出的mtPkgInfo getPkgId是否与当前reqVo.getPkgId一致
+                if (reqVO.getPkgId().compareTo(mtPkgInfo.getPkgId()) != 0) {
+                    throw exception(PKGINFO_MTID_EXIST);
+                }
+            }
+        }
+        // 判断抖音团购id 是否 已经重复
+        if (!ObjectUtils.isEmpty(reqVO.getDyId())) {
+            PkgInfoDO mtPkgInfo = pkgInfoMapper.selectOne(PkgInfoDO::getDyId, reqVO.getDyId(), PkgInfoDO::getStoreId, reqVO.getStoreId());
+            if (mtPkgInfo != null) {
+                // 新增套餐 传递的美团团购id已经存在则抛出异常
+                if (reqVO.getPkgId() == null) {
+                    throw exception(PKGINFO_DYID_EXIST);
+                }
+                // 修改操作 判断查出的mtPkgInfo getPkgId是否与当前reqVo.getPkgId一致
+                if (reqVO.getPkgId().compareTo(mtPkgInfo.getPkgId()) != 0) {
+                    throw exception(PKGINFO_DYID_EXIST);
+                }
+            }
+        }
+        // 判断快手团购id 是否 已经重复
+        if (!ObjectUtils.isEmpty(reqVO.getKsId())) {
+            PkgInfoDO mtPkgInfo = pkgInfoMapper.selectOne(PkgInfoDO::getKsId, reqVO.getKsId(), PkgInfoDO::getStoreId, reqVO.getStoreId());
+            if (mtPkgInfo != null) {
+                // 新增套餐 传递的美团团购id已经存在则抛出异常
+                if (reqVO.getPkgId() == null) {
+                    throw exception(PKGINFO_KSID_EXIST);
+                }
+                // 修改操作 判断查出的mtPkgInfo getPkgId是否与当前reqVo.getPkgId一致
+                if (reqVO.getPkgId().compareTo(mtPkgInfo.getPkgId()) != 0) {
+                    throw exception(PKGINFO_KSID_EXIST);
+                }
+            }
+        }
+        //排序可用时间和星期
+        if (!ObjectUtils.isEmpty(reqVO.getEnableTime())) {
+            reqVO.setEnableTime(reqVO.getEnableTime().stream().sorted().collect(Collectors.toList()));
+        }
+        if (!ObjectUtils.isEmpty(reqVO.getEnableWeek())) {
+            reqVO.setEnableWeek(reqVO.getEnableWeek().stream().sorted().collect(Collectors.toList()));
+        }
+        //兼容处理可用房间类型
+        List<Integer> roomTypes = new ArrayList<>();
+        if (!ObjectUtils.isEmpty(reqVO.getRoomType())) {
+            if (reqVO.getRoomType() instanceof Integer) {
+                if (((Integer) reqVO.getRoomType()).compareTo(0) != 0) {
+                    roomTypes = new ArrayList<>(1);
+                    roomTypes.add((Integer) reqVO.getRoomType());
+                }
+            } else if (reqVO.getRoomType() instanceof ArrayList) {
+                roomTypes = (List<Integer>) reqVO.getRoomType();
+            } else if (reqVO.getRoomType() instanceof String && !((String) reqVO.getRoomType()).contains("[")) {
+                roomTypes = new ArrayList<>(1);
+                roomTypes.add(Integer.parseInt((String) reqVO.getRoomType()));
+            } else {
+                //参数不符合要求
+                throw exception(OPRATION_ERROR);
+            }
+        }
+        if (ObjectUtils.isEmpty(reqVO.getPkgId())) {
+            //新增
+            PkgInfoDO pkgInfoDO = new PkgInfoDO();
+            BeanUtils.copyProperties(reqVO, pkgInfoDO);
+            pkgInfoDO.setRoomType(roomTypes);
+            pkgInfoDO.setCreateUserId(getLoginUserId());
+            pkgInfoMapper.insert(pkgInfoDO);
+        } else {
+            PkgInfoDO pkgInfoDO = pkgInfoMapper.selectById(reqVO.getPkgId());
+            if (ObjectUtils.isEmpty(pkgInfoDO)) {
+                throw exception(OPRATION_ERROR);
+            }
+            BeanUtils.copyProperties(reqVO, pkgInfoDO);
+            pkgInfoDO.setRoomType(roomTypes);
+            // 按房间大小 和 包厢限制互斥 , 前端只会传递一个参数回来 判断哪个该设置为null
+            if (!ObjectUtils.isEmpty(reqVO.getEnableRoom())) {
+                pkgInfoDO.setRoomType(null);
+            } else {
+                pkgInfoDO.setEnableRoom(null);
+            }
+            pkgInfoMapper.updateById(pkgInfoDO);
+        }
+    }
+
+
+    @Override
+    @Transactional
+    public void enable(Long pkgId) {
+        PkgInfoDO pkgInfoDO = pkgInfoMapper.selectById(pkgId);
+        if (ObjectUtils.isEmpty(pkgInfoDO)) {
+            throw exception(OPRATION_ERROR);
+        }
+        // 校验用户权限
+        storeInfoService.checkPermission(pkgInfoDO.getStoreId(), getLoginUserId(), getLoginUserType(), AppEnum.member_user_type.ADMIN.getValue());
+        pkgInfoMapper.updateEnable(pkgId, !pkgInfoDO.getEnable());
+    }
+
+    @Override
+    public PageResult<AppPkgPageRespVO> getPkgPage(AppPkgPageReqVO reqVO) {
+        IPage<AppPkgPageRespVO> page = new Page<>(reqVO.getPageNo(), reqVO.getPageSize());
+        pkgInfoMapper.getPkgPage(page, reqVO);
+        List<AppPkgPageRespVO> respVOList = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(page.getRecords())) {
+            if (!ObjectUtils.isEmpty(reqVO.getStartTime()) && !ObjectUtils.isEmpty(reqVO.getEndTime())) {
+                //订单时长 （分钟）
+                long orderMinutes = Math.abs(ChronoUnit.MINUTES.between(reqVO.getStartTime().toInstant(), reqVO.getEndTime().toInstant()));
+                for (AppPkgPageRespVO x : page.getRecords()) {
+                    //删除时长不匹配的套餐
+                    if (orderMinutes == x.getHours() * 60) {
+                        respVOList.add(x);
+                    }
+                }
+            } else {
+                //不限制订单时间  就返回所有
+                respVOList = page.getRecords();
+            }
+        }
+        return new PageResult<>(respVOList, page.getTotal());
+    }
+
+    @Override
+    public PageResult<AppPkgMyPageRespVO> getMyPkgPage(AppMyPkgPageReqVO reqVO) {
+        IPage<AppPkgMyPageRespVO> page = new Page<>(reqVO.getPageNo(), reqVO.getPageSize());
+        pkgInfoMapper.getMyPkgPage(page, reqVO, getLoginUserId());
+        return new PageResult<>(page.getRecords(), page.getTotal());
+    }
+
+    @Override
+    @Transactional
+    public WxPayOrderRespVO preBuyPkg(Long pkgId) {
+        PkgInfoDO pkgInfoDO = pkgInfoMapper.selectById(pkgId);
+        if (ObjectUtils.isEmpty(pkgInfoDO) || !pkgInfoDO.getEnable()) {
+            throw exception(DATA_NOT_EXISTS);
+        }
+        //检查最大购买数量限制
+        if (pkgInfoDO.getMaxNum() > 0) {
+            int c = pkgUserInfoMapper.countByUserId(pkgId, getLoginUserId());
+            if (c >= pkgInfoDO.getMaxNum()) {
+                throw exception(PKG_BUY_MAX_NUM_ERROR);
+            }
+        }
+        //生成微信支付
+        String orderNo = getOrderNo();
+        WxPayOrderRespVO respVO = new WxPayOrderRespVO();
+        respVO.setPrice(pkgInfoDO.getPrice().multiply(new BigDecimal("100")).intValue());
+        respVO.setOrderNo(orderNo);
+        //需要支付下单
+        payOrderService.create(respVO, getLoginUserId(), orderNo, null, pkgInfoDO.getStoreId(), AppEnum.order_pay_type.WEIXIN.getValue(), "套餐购买订单", respVO.getPrice(), "套餐购买订单", null);
+        //把订单号存到redis 如果已经充值了 就移除这个订单号
+        String redisKey = String.format(WX_PAY_ORDER, orderNo);
+        Long tenantId = TenantContextHolder.getTenantId();
+        // 如果获取不到租户编号，则尝试使用登陆用户的租户编号
+        if (tenantId == null) {
+            LoginUser user = SecurityFrameworkUtils.getLoginUser();
+            tenantId = user.getTenantId();
+        }
+        redisTemplate.opsForValue().set(redisKey, new WxPayOrderInfo(AppWxPayTypeEnum.PKG, orderNo, getLoginUserId(), tenantId
+                , pkgInfoDO.getStoreId(), respVO.getPrice(), pkgId), 1, TimeUnit.DAYS);
+        payOrderService.retainPartnerContext(orderNo);
+        return respVO;
+    }
+
+    private String getOrderNo() {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        String currentDate = currentDateTime.format(dateFormatter);
+        Random random = new Random();
+        int randomNum = random.nextInt(100000000);
+        String randomNumString = String.format("%08d", randomNum);
+        return "TC" + currentDate + randomNumString;
+    }
+
+    @Override
+    @Transactional
+    public void buyPkg(AppBuyPkgReqVO reqVO) {
+        if(payOrderService.completePartnerBusiness(reqVO.getOrderNo(),AppWxPayTypeEnum.PKG))return;
+        if (ObjectUtils.isEmpty(reqVO.getUserId())) {
+            reqVO.setUserId(getLoginUserId());
+        }
+        Long userId = reqVO.getUserId();
+        PkgInfoDO pkgInfoDO = pkgInfoMapper.selectById(reqVO.getPkgId());
+        if (ObjectUtils.isEmpty(pkgInfoDO) || !pkgInfoDO.getEnable()) {
+            throw exception(DATA_NOT_EXISTS);
+        }
+        //检查最大购买数量限制
+        if (pkgInfoDO.getMaxNum() > 0) {
+            int c = pkgUserInfoMapper.countByUserId(reqVO.getPkgId(), userId);
+            if (c >= pkgInfoDO.getMaxNum()) {
+                throw exception(PKG_BUY_MAX_NUM_ERROR);
+            }
+        }
+        payOrderService.checkWxOrder(reqVO.getOrderNo(), pkgInfoDO.getStoreId(), reqVO.getPrice());
+        //添加套餐给用户
+        PkgUserInfoDO pkgUserInfoDO = new PkgUserInfoDO();
+        pkgUserInfoDO.setUserId(reqVO.getUserId());
+        pkgUserInfoDO.setStatus(AppEnum.coupon_status.AVAILABLE.getValue());
+        pkgUserInfoDO.setStoreId(pkgUserInfoDO.getStoreId());
+        pkgUserInfoDO.setPkgId(pkgInfoDO.getPkgId());
+        //计算过期时间
+        if (pkgInfoDO.getExpireDay().compareTo(0) == 0) {
+            //不过期
+            pkgUserInfoDO.setExpireDate(LocalDate.of(2099, 12, 31));
+        } else {
+            LocalDate now = LocalDate.now();
+            now = now.plusDays(pkgInfoDO.getExpireDay());
+            pkgUserInfoDO.setExpireDate(now);
+        }
+        pkgUserInfoMapper.insert(pkgUserInfoDO);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long pkgId) {
+        // 校验用户类型
+        PkgInfoDO pkgInfoDO = pkgInfoMapper.selectById(pkgId);
+        if (!ObjectUtils.isEmpty(pkgInfoDO)) {
+            storeInfoService.checkPermission(pkgInfoDO.getStoreId(), getLoginUserId(), getLoginUserType(), AppEnum.member_user_type.ADMIN.getValue());
+            pkgInfoMapper.deleteById(pkgId);
+        }
+    }
+}

@@ -1,0 +1,2 @@
+com.cloudsteward.framework.idempotent.config.CloudStewardIdempotentConfiguration
+com.cloudsteward.framework.lock4j.config.CloudStewardLock4jConfiguration

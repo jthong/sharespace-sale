@@ -1,0 +1,12 @@
+{
+    "navigationBarTitleText": "优惠中心",
+    "usingComponents": {
+      "van-action-sheet": "../../components/vant/action-sheet/index",
+      "van-radio": "../../components/vant/radio/index",
+      "van-radio-group": "../../components/vant/radio-group/index",
+      "custom-tabbar": "../../custom-tab-bar",
+      "skeleton": "../../components/skeleton/skeleton"
+    },
+    "navigationBarBackgroundColor": "#47BA91",
+    "navigationBarTextStyle": "white"
+  }

@@ -1,0 +1,80 @@
+<!--index.wxml-->
+<view class="top">
+  <view class="top-search">
+    <view class="left">
+      <view class="label" bindtap="goLocation">
+        <image lazy-load src="https://oss.systemdiv.com/f4911f0994c3c8f5bff5bcdffe0c1fe121490c08cb57e58b28a01a626d0bba70.png" mode="scaleToFill" />
+        <text>{{cityName}}</text>
+        <icon></icon>
+      </view>
+      <input class="input" type="text" placeholder="{{'输入关键字搜索门店'}}" value="{{name}}" bindinput="onInputChange" />
+    </view>
+    <view wx:if="{{isMap}}" class="right" bindtap="goListSeach">
+      <text>列表</text>
+    </view>
+    <view wx:else class="right" bindtap="goMapSeach">
+      <iconfont name="dingwei" size="30"></iconfont>
+    </view>
+  </view>
+  <view class="banner" wx:if="{{bannershowlist.length>0}}">
+    <swiper autoplay indicator-dots>
+      <block wx:for="{{bannershowlist}}" wx:key="banner">
+        <swiper-item>
+          <image lazy-load src="{{item.imgUrl}}" mode="scaleToFill"></image>
+        </swiper-item>
+      </block>
+    </swiper>
+  </view>
+</view>
+
+<!-- 骨架屏 -->
+<skeleton type="store-card" loading="{{skeletonLoading}}" rows="{{3}}" />
+
+<view class="container" wx:if="{{!skeletonLoading}}">
+  <!-- 列表 -->
+  <view class="lists">
+    <view class="list">
+      <block wx:if="{{MainStorelist.length>0}}">
+        <view wx:for="{{MainStorelist}}" wx:key="MainStorelist">
+          <view class="store-card" bind:tap="goStore" data-storeid="{{item.storeId}}">
+            <view class="image-container">
+              <image lazy-load class="store-card__image" src="{{item.headImg || 'https://oss.systemdiv.com/775b494fdf70e3a9063a0a570a2827a843e0c0c0930229f9ce15a486b80114d4.png'}}" mode="aspectFill"></image>
+            </view>
+            <view class="text-container">
+              <view class="free-tag">
+                空闲 <text>{{item.freeRoomNum}}</text>
+              </view>
+              <view class="name">{{item.storeName}}</view>
+              <view class="address">{{item.address}}</view>
+              <view class="item-buttom">
+                <view class="info">
+                  <view class="position" catchtap="goTencentMap" data-info="{{item}}" wx:if="{{item.distance}}">
+                    <text class="distance">{{item.distance}}</text>km
+                  </view>
+                </view>
+                <view class="door-button">立即预定</view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+      <block wx:else>
+        <view>
+          <view class="noStoreInfo">
+            <view>
+              <image lazy-load class="noStore-image" src="https://oss.systemdiv.com/f890fffcefdab6836f526d8a417e20044b030be8b781f5f3d863a77912c28d6e.png" mode="scaleToFill" />
+            </view>
+            <text wx:if="{{tabIndex==1}}">暂无常用门店</text>
+            <text wx:else>暂无门店</text>
+            <text wx:if="{{tabIndex==1}}">去附近门店看看吧</text>
+            <button class="go-near" bind:tap="goNear" wx:if="{{tabIndex==1}}">查看附近门店</button>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+</view>
+
+<view style="margin-bottom: 80rpx;"></view>
+<custom-tabbar></custom-tabbar>
+<view class="bt"></view>

@@ -1,0 +1,28 @@
+<!--pages/setUserInfo/setUserInfo.wxml-->
+<view class="container">
+  <view class="photo">
+    <view class="img">
+      <image lazy-load src="{{userinfo.avatar?userinfo.avatar:'https://oss.systemdiv.com/775b494fdf70e3a9063a0a570a2827a843e0c0c0930229f9ce15a486b80114d4.png'}}" mode="widthFix" />
+    </view>
+    <button hover-class="button-click" class="tip" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">点击更新头像</button>
+  </view>
+  <view class="list">
+    <view class="item" bindtap="setUserName">
+      <view class="left">
+        <view class="label">昵称</view>
+        <text>{{userinfo.nickname}}</text>
+      </view>
+      <iconfont name="right"></iconfont>
+    </view>
+    <view class="item">
+      <view class="left">
+        <view class="label">手机</view>
+        <text>{{userinfo.mobile}}</text>
+      </view>
+      <!-- <view class="btn" bindtap="setPhone">更换手机</view> -->
+    </view>
+  </view>
+  <view class="bottom {{isIpx?'fix-iphonex-button':''}}">
+    <view class="btn theme-color-shadow theme-bg-primary" bindtap="exitLogin" style="color: #fff;">退出登录</view>
+  </view>
+</view>

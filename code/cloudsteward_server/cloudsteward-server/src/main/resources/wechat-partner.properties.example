@@ -1,0 +1,21 @@
+# Copy to a private directory outside the web root, readable only by the application.
+# Import its absolute path from the existing application.properties with spring.config.import.
+# Run sql/mysql/20261110_wechat_partner.sql before enabling this version.
+wx.pay.partner.enabled=false
+wx.pay.partner.sp-app-id=
+wx.pay.partner.sp-mch-id=
+# The actual miniapp AppID, associated with each store's sub-merchant at WeChat Pay.
+wx.pay.partner.mini-app-id=
+wx.pay.partner.payer-scope=sub
+wx.pay.partner.serial-number=
+wx.pay.partner.private-key-path=/private/wechat/apiclient_key.pem
+wx.pay.partner.certificate-path=/private/wechat/apiclient_cert.pem
+wx.pay.partner.api-v3-key=
+wx.pay.partner.notify-url=https://YOUR_API_HOST/prod-api/app-api/callback/wxpay/partner/notify
+wx.pay.partner.refund-notify-url=https://YOUR_API_HOST/prod-api/app-api/callback/wxpay/partner/refund
+# Do not enable HTTP wire/debug logging: payment credentials and OpenIDs must stay private.
+logging.level.org.apache.http=WARN
+logging.level.com.wechat.pay.contrib.apache.httpclient=INFO
+# Store management > WeChat merchant number binds one sub_mchid per store.
+# Existing payment/refund attempts keep their original merchant even after a binding change.
+# If rollback is required, restore the original JAR and configuration; retain payment tables.

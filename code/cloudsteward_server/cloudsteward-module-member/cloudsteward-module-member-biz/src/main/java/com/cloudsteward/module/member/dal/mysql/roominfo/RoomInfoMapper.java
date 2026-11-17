@@ -1,0 +1,81 @@
+package com.cloudsteward.module.member.dal.mysql.roominfo;
+
+import com.cloudsteward.framework.common.core.KeyValue;
+import com.cloudsteward.framework.common.pojo.PageResult;
+import com.cloudsteward.framework.mybatis.core.mapper.BaseMapperX;
+import com.cloudsteward.framework.mybatis.core.query.LambdaQueryWrapperX;
+import com.cloudsteward.module.member.controller.admin.roominfo.vo.RoomInfoExportReqVO;
+import com.cloudsteward.module.member.controller.admin.roominfo.vo.RoomInfoPageReqVO;
+import com.cloudsteward.module.member.controller.app.store.vo.AppRoomInfoListRespVO;
+import com.cloudsteward.module.member.controller.app.store.vo.AppRoomListRespVO;
+import com.cloudsteward.module.member.controller.app.store.vo.AppRoomListVO;
+import com.cloudsteward.module.member.dal.dataobject.roominfo.RoomInfoDO;
+import com.cloudsteward.module.member.service.iot.platform.IotRoomListRespVO;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+import java.util.Set;
+
+/**
+ * 房间管理 Mapper
+ *
+ * @author 芋道源码
+ */
+@Mapper
+public interface RoomInfoMapper extends BaseMapperX<RoomInfoDO> {
+    default PageResult<RoomInfoDO> selectPage(RoomInfoPageReqVO reqVO) {
+        return selectPage(reqVO, new LambdaQueryWrapperX<RoomInfoDO>()
+                .likeIfPresent(RoomInfoDO::getRoomName, reqVO.getRoomName())
+                .eqIfPresent(RoomInfoDO::getStoreId, reqVO.getStoreId())
+                .eqIfPresent(RoomInfoDO::getType, reqVO.getType())
+                .eqIfPresent(RoomInfoDO::getStatus, reqVO.getStatus())
+                .betweenIfPresent(RoomInfoDO::getCreateTime, reqVO.getCreateTime())
+                .orderByDesc(RoomInfoDO::getRoomId));
+    }
+
+    default List<RoomInfoDO> selectList(RoomInfoExportReqVO reqVO) {
+        return selectList(new LambdaQueryWrapperX<RoomInfoDO>()
+                .likeIfPresent(RoomInfoDO::getRoomName, reqVO.getRoomName())
+                .eqIfPresent(RoomInfoDO::getStoreId, reqVO.getStoreId())
+                .eqIfPresent(RoomInfoDO::getType, reqVO.getType())
+                .eqIfPresent(RoomInfoDO::getStatus, reqVO.getStatus())
+                .betweenIfPresent(RoomInfoDO::getCreateTime, reqVO.getCreateTime())
+                .orderByDesc(RoomInfoDO::getRoomId));
+    }
+
+    List<KeyValue<String, Long>> getRoomList(@Param("storeId") Long storeId, @Param("userId") Long userId);
+
+    List<AppRoomListRespVO> getRoomInfoList(@Param("storeId") Long storeId, @Param("userId") Long userId);
+
+    int updateStatusById(@Param("status") Integer status, @Param("roomId") Long roomId);
+
+    int updateStatusByIds(@Param("status") Integer status, @Param("roomIds") String roomIds);
+
+    String getRoomImgs(Long roomId);
+
+    Integer countByStoreIdAndUserId(@Param("storeId") Long storeId, @Param("userId") Long userId);
+
+    List<KeyValue<String, Long>> getRoomListByAdmin(Long storeId);
+
+    List<KeyValue<String, Long>> getRoomListByStoreId(Long storeId);
+
+    List<Long> getRoomIdsByStoreId(Long storeId);
+
+    String getNameById(Long roomId);
+
+    List<AppRoomListVO> getListByIds(@Param("roomIds") Set<Long> roomIds);
+    AppRoomListVO getInfoById(@Param("roomId") Long roomId);
+
+    List<AppRoomInfoListRespVO> getRoomInfoList2(@Param("storeIds") List<String> storeIds, @Param("storeId") Long storeId);
+
+    List<Integer> getClassList(Long storeId);
+
+    List<IotRoomListRespVO> getIotRoomList(Long storeId);
+
+    int countAiBall(Long roomId);
+
+    int flashStatus();
+
+
+}
